@@ -1,0 +1,13 @@
+# Prevent execution of any scripts other than index.php
+<FilesMatch "(?i)\.(php|php3?|phtml)$">
+    <If "%{REQUEST_URI} != '/index.php'">
+        Require all denied
+    </If>
+</FilesMatch>
+
+# Block all direct access to internal files and txts
+<FilesMatch "\.(json|txt|md|log|ini|env)$">
+    Require all denied
+</FilesMatch>
+
+Options -Indexes

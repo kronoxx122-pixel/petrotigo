@@ -1,0 +1,48 @@
+﻿HTTP CODE: 200
+RESPONSE:
+{"data":{"result":{"value":false,"class":"error","formattedValue":"Token no v\u00e1lido","show":true}},"config":{"title":{"value":"Configuraci\u00f3n MiTigo Express - GET","show":false},"description":"","imagePath":"https:\/\/micuenta2-tigo-com-co-prod.tigocloud.net\/sites\/default\/files\/","footer":""},"meta":{"id":"3002727129","idType":"subscribers","params":{"_format":"json"},"businessUnit":"mobile","category":"billing","cache":0,"expirationCache":1768153702}}
+
+JSON DECODED:
+Array
+(
+    [data] => Array
+        (
+            [result] => Array
+                (
+                    [value] => 
+                    [class] => error
+                    [formattedValue] => Token no v├ílido
+                    [show] => 1
+                )
+
+        )
+
+    [config] => Array
+        (
+            [title] => Array
+                (
+                    [value] => Configuraci├│n MiTigo Express - GET
+                    [show] => 
+                )
+
+            [description] => 
+            [imagePath] => https://micuenta2-tigo-com-co-prod.tigocloud.net/sites/default/files/
+            [footer] => 
+        )
+
+    [meta] => Array
+        (
+            [id] => 3002727129
+            [idType] => subscribers
+            [params] => Array
+                (
+                    [_format] => json
+                )
+
+            [businessUnit] => mobile
+            [category] => billing
+            [cache] => 0
+            [expirationCache] => 1768153702
+        )
+
+)

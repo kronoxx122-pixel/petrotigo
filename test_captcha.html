@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Test Proxy Tigo CAPTCHA</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+
+        .test-container {
+            border: 2px solid #333;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        #status {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        iframe {
+            width: 100%;
+            height: 700px;
+            border: 2px solid #007bff;
+        }
+
+        #token-display {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 11px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        #logs {
+            background: #000;
+            color: #0f0;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 11px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+
+        .log-entry {
+            margin: 2px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🧪 Test: Proxy Tigo CAPTCHA (Opción B)</h1>
+
+    <div id="status" class="info">
+        ⏳ Cargando iframe via proxy...
+    </div>
+
+    <div class="test-container">
+        <h2>Iframe con Proxy</h2>
+        <p>Cargando <code>proxy_tigo.php</code> (que a su vez carga Tigo)</p>
+
+        <iframe id="tigoFrame" src="http://localhost:8000/proxy_tigo.php" allow="same-origin"></iframe>
+    </div>
+
+    <div class="test-container">
+        <h2>📝 Instrucciones</h2>
+        <ol>
+            <li><strong>Si ves la página de Tigo completa arriba</strong> → ✅ Proxy funcionó</li>
+            <li><strong>Resuelve el CAPTCHA</strong> dentro del iframe</li>
+            <li><strong>El token aparecerá automáticamente</strong> en la sección de abajo</li>
+            <li><strong>Revisa los logs</strong> para ver qué está detectando el script</li>
+        </ol>
+    </div>
+
+    <div class="test-container">
+        <h2>🎯 Token Capturado</h2>
+        <div id="token-display">Esperando que resuelvas el CAPTCHA...</div>
+
+        <h3>📊 Logs del Sistema</h3>
+        <div id="logs"></div>
+    </div>
+
+    <script>
+        const statusDiv = document.getElementById('status');
+        const tokenDisplay = document.getElementById('token-display');
+        const logsDiv = document.getElementById('logs');
+        const iframe = document.getElementById('tigoFrame');
+
+        let tokenReceived = false;
+
+        function addLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? '#f88' : type === 'success' ? '#0f0' : '#0af';
+            logsDiv.innerHTML += `<div class="log-entry" style="color: ${color}">[${timestamp}] ${message}</div>`;
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+        }
+
+        // Escuchar mensajes del iframe (token del proxy)
+        window.addEventListener('message', (event) => {
+            addLog('Mensaje recibido de: ' + event.origin);
+            console.log('[Parent] Mensaje completo:', event);
+
+            // Aceptar mensajes de nuestro localhost
+            if (event.origin.includes('localhost') || event.origin.includes('127.0.0.1')) {
+                if (event.data && event.data.type === 'TIGO_CAPTCHA_TOKEN') {
+                    tokenReceived = true;
+                    const token = event.data.token;
+
+                    addLog('✅ TOKEN CAPTURADO: ' + token.substring(0, 30) + '...', 'success');
+
+                    tokenDisplay.innerHTML = '<strong>✅ Token recibido exitosamente:</strong><br><br>' +
+                        '<code>' + token + '</code>';
+
+                    statusDiv.className = 'success';
+                    statusDiv.innerHTML = '🎉 ¡ÉXITO! Token capturado correctamente via proxy';
+                }
+            }
+        });
+
+        // Detectar carga del iframe
+        iframe.addEventListener('load', () => {
+            addLog('Iframe cargó correctamente');
+            statusDiv.className = 'info';
+            statusDiv.innerHTML = '✅ Proxy funcionó. Ahora resuelve el CAPTCHA en el iframe.';
+        });
+
+        // Detectar error de carga
+        iframe.addEventListener('error', () => {
+            addLog('❌ Error cargando iframe', 'error');
+            statusDiv.className = 'error';
+            statusDiv.innerHTML = '❌ Error cargando proxy. Verifica que el servidor esté corriendo.';
+        });
+
+        // Timeout de 60 segundos
+        setTimeout(() => {
+            if (!tokenReceived) {
+                addLog('⏰ Timeout: No se recibió token en 60s', 'error');
+                statusDiv.innerHTML += '<br><br>⏰ Pasaron 60 segundos. ¿Resolviste el CAPTCHA?';
+            }
+        }, 60000);
+
+        addLog('Sistema iniciado, esperando CAPTCHA...');
+    </script>
+</body>
+
+</html>

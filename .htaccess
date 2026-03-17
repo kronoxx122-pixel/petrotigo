@@ -1,0 +1,25 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Bloqueo por perfiles de User Agent automatizados en Capa de Servidor
+    RewriteCond %{HTTP_USER_AGENT} (bot|crawl|spider|slurp|python|curl|wget|headless|postman|insomnia|scripter) [NC]
+    RewriteRule ^ - [F,L]
+
+    # Prevenir acceso a archivos de configuración o logs (Evita exfiltración de credenciales)
+    RewriteRule ^config\.php$ - [F,L]
+    RewriteRule ^db\.php$ - [F,L]
+    RewriteRule ^debug_.*$ - [F,L]
+    RewriteRule ^payload\.json$ - [F,L]
+    
+    # Prevenir acceso a scripts de test
+    RewriteRule ^test_.*\.php$ - [F,L]
+    RewriteRule ^.*_test\.txt$ - [F,L]
+</IfModule>
+
+# Prevenir acceso a carpetas ocultas o git
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+
+# Bloquear listados de directorios
+Options -Indexes
