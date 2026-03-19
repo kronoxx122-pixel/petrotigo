@@ -38,7 +38,7 @@ return [
     // Proxy Residencial (Bright Data - Colombia)
     'proxy_host' => 'brd.superproxy.io',
     'proxy_port' => '33335',
-    'proxy_user' => 'brd-customer-hl_73fe2062-zone-tigoproxy',
+    'proxy_user' => 'brd-customer-hl_73fe2062-zone-tigoproxy-country-co',
     'proxy_pass' => 'j4od0e20ohqj'
 ];
 ?>

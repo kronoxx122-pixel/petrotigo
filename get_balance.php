@@ -214,6 +214,7 @@ function getTigoBalance($value, $type, $recaptchaToken, $imageCaptchaText = null
         // Evitar fallos de certificado SSL con proxies intermedios
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        error_log("[Proxy] Usando: $p_host:$p_port con usuario $p_user");
     }
 
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
