@@ -16,7 +16,7 @@ ob_start();
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- hCaptcha (siempre muestra desafío de imágenes) -->
     <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
-    <script src="https://www.google.com/recaptcha/enterprise.js?render=6Ldat4QsAAAAABNF7g9awFqFmozAQD8GYKOsFYm1"></script>
+    <script src="https://www.google.com/recaptcha/enterprise.js?render=6Ldat4QsAAAAABNF7g9awFqFmozAQD8GYKOsFYm1" async defer></script>
 
 
 </head>
