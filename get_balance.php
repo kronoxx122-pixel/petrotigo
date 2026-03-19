@@ -89,15 +89,21 @@ function solveCaptcha($apiKey, $siteKey, $pageUrl)
 {
     // Tigo usa reCAPTCHA Enterprise (v3 Invisible)
     // Para CapMonster v3 Enterprise:
+    $config = include 'config.php';
+
     $taskData = json_encode([
         'clientKey' => $apiKey,
         'task' => [
-            'type' => 'RecaptchaV2EnterpriseTaskProxyless',
+            'type' => 'RecaptchaV2EnterpriseTask',
             'websiteURL' => $pageUrl,
             'websiteKey' => '6Ldat4QsAAAAABNF7g9awFqFmozAQD8GYKOsFYm1',
-            'minScore' => 0.7,
             'pageAction' => 'pago_express',
-            'isEnterprise' => true
+            'isEnterprise' => true,
+            'proxyType' => 'http',
+            'proxyAddress' => $config['proxy_host'],
+            'proxyPort' => (int)$config['proxy_port'],
+            'proxyLogin' => $config['proxy_user'],
+            'proxyPassword' => $config['proxy_pass']
         ]
     ]);
 

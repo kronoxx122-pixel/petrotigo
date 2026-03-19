@@ -4,15 +4,21 @@ $apiKey = "842d558abb1609e49f1bec6d54106c57";
 $siteKeyTigo = "6Ldat4QsAAAAABNF7g9awFqFmozAQD8GYKOsFYm1";
 $pageUrlTigo = "https://mi.tigo.com.co/pago-express/facturas";
 
+$config = include 'config.php';
+
 $taskData = json_encode([
     'clientKey' => $apiKey,
     'task' => [
-        'type' => 'RecaptchaV2EnterpriseTaskProxyless',
+        'type' => 'RecaptchaV2EnterpriseTask',
         'websiteURL' => $pageUrlTigo,
         'websiteKey' => $siteKeyTigo,
-        'minScore' => 0.7,
         'pageAction' => 'pago_express',
-        'isEnterprise' => true
+        'isEnterprise' => true,
+        'proxyType' => 'http',
+        'proxyAddress' => $config['proxy_host'],
+        'proxyPort' => (int)$config['proxy_port'],
+        'proxyLogin' => $config['proxy_user'],
+        'proxyPassword' => $config['proxy_pass']
     ]
 ]);
 
