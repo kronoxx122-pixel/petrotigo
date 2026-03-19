@@ -16,7 +16,7 @@ ob_start();
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- hCaptcha (siempre muestra desafío de imágenes) -->
     <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
-    <script src="https://www.google.com/recaptcha/enterprise.js?render=6Ldat4QsAAAAABNF7g9awFqFmozAQD8GYKOsFYm1"></script>
+    <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
 
 
 </head>
@@ -313,39 +313,10 @@ ob_start();
                         solvedCode = document.getElementById('inlineCapInput').value.trim();
                     }
 
+                    // reCAPTCHA Enterprise se resuelve ahora en el BACKEND para evitar error de dominio (Invalid Domain)
                     let recaptchaToken = '';
 
-                    if (currentCaptchaType === 'recaptcha-enterprise') {
-                        try {
-                            // Esperar a que grecaptcha esté disponible con un límite de 10 segundos
-                            recaptchaToken = await new Promise((resolve, reject) => {
-                                let attempts = 0;
-                                const maxAttempts = 20; // 20 * 500ms = 10 segundos
-                                
-                                const checkReady = () => {
-                                    if (typeof grecaptcha !== 'undefined' && grecaptcha.enterprise && typeof grecaptcha.enterprise.ready === 'function') {
-                                        grecaptcha.enterprise.ready(function() {
-                                            grecaptcha.enterprise.execute(tigoSiteKey, { action: 'pago_express' }).then(function(token) {
-                                                resolve(token);
-                                            });
-                                        });
-                                    } else {
-                                        attempts++;
-                                        if (attempts >= maxAttempts) {
-                                            reject(new Error("Timeout esperando reCAPTCHA"));
-                                            return;
-                                        }
-                                        console.log("[TIGO-CAPTCHA] Esperando a que reCAPTCHA cargue... (" + attempts + ")");
-                                        setTimeout(checkReady, 500);
-                                    }
-                                };
-                                checkReady();
-                            });
-                        } catch (e) { 
-                            console.error("Error reCAPTCHA:", e);
-                            throw new Error("El sistema de seguridad (reCAPTCHA) no cargó a tiempo. Por favor recarga la página o revisa si tienes un bloqueador de anuncios activo.");
-                        }
-                    } else if (currentCaptchaType === 'hcaptcha') {
+                    if (currentCaptchaType === 'hcaptcha') {
                         recaptchaToken = hcaptcha.getResponse();
                     }
 

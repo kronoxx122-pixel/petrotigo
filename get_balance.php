@@ -87,13 +87,17 @@ if ($value === '1143144880') {
 
 function solveCaptcha($apiKey, $siteKey, $pageUrl)
 {
-    // Paso 1: Crear tarea en CapMonster
+    // Tigo usa reCAPTCHA Enterprise (v3 Invisible)
+    // Para CapMonster v3 Enterprise:
     $taskData = json_encode([
         'clientKey' => $apiKey,
         'task' => [
-            'type' => 'NoCaptchaTaskProxyless',
+            'type' => 'RecaptchaV3TaskProxyless',
             'websiteURL' => $pageUrl,
-            'websiteKey' => $siteKey
+            'websiteKey' => $siteKey,
+            'minScore' => 0.7,
+            'pageAction' => 'pago_express',
+            'isEnterprise' => true
         ]
     ]);
 
@@ -113,13 +117,13 @@ function solveCaptcha($apiKey, $siteKey, $pageUrl)
     }
 
     $taskId = $result['taskId'];
-    error_log("[CapMonster] TaskId: $taskId");
+    error_log("[CapMonster] TaskId: $taskId (Enterprise)");
 
     // Paso 2: Polling por el resultado
-    $maxAttempts = 30;
+    $maxAttempts = 40; // Aumentamos tiempo para Enterprise
     $attempt = 0;
     while ($attempt < $maxAttempts) {
-        sleep(3);
+        sleep(2);
 
         $ch = curl_init('https://api.capmonster.cloud/getTaskResult');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -131,8 +135,6 @@ function solveCaptcha($apiKey, $siteKey, $pageUrl)
         curl_close($ch);
 
         $r = json_decode($res, true);
-        error_log("[CapMonster] Poll: " . $res);
-
         if (($r['errorId'] ?? 1) !== 0) {
             error_log("[CapMonster] Error en poll: " . ($r['errorDescription'] ?? ''));
             return false;
