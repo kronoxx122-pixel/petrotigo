@@ -426,6 +426,13 @@ else {
         echo json_encode(["success" => false, "status" => "not_found", "message" => $errorMsg, "debug_response" => $data]);
     }
     else {
-        echo json_encode(["success" => false, "status" => "not_found", "message" => "No se encontro saldo", "debug" => $data]);
+        echo json_encode([
+            "success" => false, 
+            "status" => "not_found", 
+            "message" => "No se encontro saldo", 
+            "httpCode" => $httpCode,
+            "debug" => $data,
+            "raw_response" => substr($response, 0, 500)
+        ]);
     }
 }
