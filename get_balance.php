@@ -258,9 +258,11 @@ function getTigoBalance($value, $type, $recaptchaToken, $imageCaptchaText = null
     $curlError = curl_error($ch);
     curl_close($ch);
     
-    error_log("[Tigo API] Code: $httpCode | Error: $curlError | Response: " . $response);
-    
-    return json_decode($response, true);
+    return [
+        'data' => json_decode((string)$response, true),
+        'httpCode' => $httpCode,
+        'curlError' => $curlError
+    ];
 }
 
 
@@ -299,7 +301,10 @@ if (!$token && !$imageCaptchaText) {
 }
 
 // Realizar la consulta de saldo
-$data = getTigoBalance($value, $type, $token, $imageCaptchaText, $imageCaptchaToken);
+$resultPack = getTigoBalance($value, $type, $token, $imageCaptchaText, $imageCaptchaToken);
+$data = $resultPack['data'];
+$httpCode = $resultPack['httpCode'];
+$curlError = $resultPack['curlError'];
 
 $foundItems = [];
 if (isset($data['data']['mobile']) && is_array($data['data']['mobile'])) $foundItems = array_merge($foundItems, $data['data']['mobile']);
