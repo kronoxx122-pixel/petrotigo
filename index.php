@@ -313,13 +313,47 @@ ob_start();
                         solvedCode = document.getElementById('inlineCapInput').value.trim();
                     }
 
-                    // reCAPTCHA Enterprise se resuelve ahora en el BACKEND para evitar error de dominio (Invalid Domain)
-                    let recaptchaToken = '';
-
-                    if (currentCaptchaType === 'hcaptcha') {
+                    // --- NUEVO FLUJO ASÍNCRONO (POLLING) PARA EVITAR TIMEOUT DE VERCEL ---
+                    if (currentCaptchaType === 'recaptcha-enterprise') {
+                        try {
+                            btn.innerText = 'RESOLVIENDO SEGURIDAD...';
+                            const startRes = await fetch('start_captcha.php');
+                            const startData = await startRes.json();
+                            
+                            if (startData.taskId) {
+                                const taskId = startData.taskId;
+                                let resolvedToken = null;
+                                let attempts = 0;
+                                
+                                // Polling cada 3 segundos (máximo 15 intentos = 45 segundos)
+                                while (attempts < 15) {
+                                    await new Promise(r => setTimeout(r, 3000));
+                                    const checkRes = await fetch(`check_captcha.php?taskId=${taskId}`);
+                                    const checkData = await checkRes.json();
+                                    
+                                    if (checkData.status === 'ready') {
+                                        resolvedToken = checkData.solution.gRecaptchaResponse;
+                                        break;
+                                    } else if (checkData.errorId && checkData.errorId !== 0) {
+                                        throw new Error("Error en CapMonster: " + checkData.errorDescription);
+                                    }
+                                    attempts++;
+                                }
+                                
+                                if (!resolvedToken) throw new Error("Tiempo de espera agotado resolviendo seguridad.");
+                                recaptchaToken = resolvedToken;
+                            } else {
+                                throw new Error("Error al iniciar resolución de seguridad.");
+                            }
+                        } catch (e) {
+                            console.error("Error Polling:", e);
+                            throw new Error(e.message || "Error al validar seguridad. Intenta de nuevo.");
+                        }
+                    } else if (currentCaptchaType === 'hcaptcha') {
                         recaptchaToken = hcaptcha.getResponse();
                     }
 
+                    btn.innerText = 'CONSULTANDO SALDO...';
                     const response = await fetch('get_balance.php', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
