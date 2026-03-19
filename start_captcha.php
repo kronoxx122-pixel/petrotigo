@@ -12,8 +12,8 @@ $taskData = json_encode([
         'type' => 'RecaptchaV3EnterpriseTask',
         'websiteURL' => $pageUrlTigo,
         'websiteKey' => $siteKeyTigo,
-        'minScore' => 0.7,
-        'pageAction' => 'pago_express'
+        'minScore' => 0.9,
+        'pageAction' => 'submit'
     ]
 ]);
 
@@ -22,6 +22,7 @@ curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_POSTFIELDS, $taskData);
 curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36');
 curl_setopt($ch, CURLOPT_TIMEOUT, 15);
 $response = curl_exec($ch);
 curl_close($ch);
