@@ -162,9 +162,7 @@ ob_start();
                 // Fallback a hCaptcha en caso de error de fetch o parseo
                 currentCaptchaType = 'hcaptcha';
                 document.getElementById('hCaptchaBoxInitial').style.display = 'flex';
-                checkFormValid();
             }
-        }
         }
 
         function showInlineCaptcha(img, token) {
