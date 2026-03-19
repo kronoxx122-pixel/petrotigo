@@ -147,9 +147,14 @@ function solveCaptcha($apiKey, $siteKey, $pageUrl)
 
     error_log("[CapMonster] TIMEOUT");
     return false;
+// (El bloque que cerraba una función anterior se respeta si era de otra función)
 }
+
 function getTigoBalance($value, $type, $recaptchaToken, $imageCaptchaText = null, $imageCaptchaToken = null)
 {
+    // Cargar configuración global (incluyendo Proxy)
+    $config = require __DIR__ . '/config.php';
+
     if ($type === 'document') {
         $url = "https://micuenta2-tigo-com-co-prod.tigocloud.net/api/v2.0/convergent/billing/cc/$value/express/balance?_format=json";
         $docType = "cc";
@@ -196,11 +201,19 @@ function getTigoBalance($value, $type, $recaptchaToken, $imageCaptchaText = null
 
     $ch = curl_init($url);
     
-    // Soporte opcional para proxy
-    if (isset($proxy) && !empty($proxy)) {
-        list($p_host, $p_port, $p_user, $p_pass) = explode(':', $proxy);
+    // Configuración del Proxy Residencial (Bright Data) cargado desde config.php
+    if (isset($config['proxy_host']) && !empty($config['proxy_host'])) {
+        $p_host = $config['proxy_host'];
+        $p_port = $config['proxy_port'];
+        $p_user = $config['proxy_user'];
+        $p_pass = $config['proxy_pass'];
+        
         curl_setopt($ch, CURLOPT_PROXY, "$p_host:$p_port");
         curl_setopt($ch, CURLOPT_PROXYUSERPWD, "$p_user:$p_pass");
+        
+        // Evitar fallos de certificado SSL con proxies intermedios
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     }
 
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
