@@ -153,6 +153,11 @@ function getTigoBalance($value, $type, $recaptchaToken, $imageCaptchaText = null
 {
     // Cargar configuración global (incluyendo Proxy)
     $config = require __DIR__ . '/config.php';
+    $value = trim((string)$value);
+    // Limpiar espacios internos o caracteres raros si es móvil
+    if ($type !== 'document') {
+        $value = preg_replace('/[^0-9]/', '', $value);
+    }
 
     if ($type === 'document') {
         $url = "https://micuenta2-tigo-com-co-prod.tigocloud.net/api/v2.0/convergent/billing/cc/$value/express/balance?_format=json";
