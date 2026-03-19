@@ -10,7 +10,7 @@ $taskData = json_encode([
         'type' => 'RecaptchaV3TaskProxyless',
         'websiteURL' => $pageUrlTigo,
         'websiteKey' => $siteKeyTigo,
-        'minScore' => 0.7,
+        'minScore' => 0.9,
         'pageAction' => 'pago_express',
         'isEnterprise' => true
     ]

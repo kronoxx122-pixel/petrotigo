@@ -185,11 +185,17 @@ function getTigoBalance($value, $type, $recaptchaToken, $imageCaptchaText = null
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        "noToken: true",
+        "Accept: application/json, text/plain, */*",
         "Content-Type: application/json",
         "client-version: 5.20.0",
-        "Accept: application/json, text/plain, */*",
-        "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "noToken: true",
+        "Sec-Ch-Ua: \"Chromium\";v=\"122\", \"Not(A:Brand\";v=\"24\", \"Google Chrome\";v=\"122\"",
+        "Sec-Ch-Ua-Mobile: ?0",
+        "Sec-Ch-Ua-Platform: \"Windows\"",
+        "Sec-Fetch-Dest: empty",
+        "Sec-Fetch-Mode: cors",
+        "Sec-Fetch-Site: same-site",
+        "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
         "Origin: https://mi.tigo.com.co",
         "Referer: https://mi.tigo.com.co/pago-express/facturas?origin=web"
     ]);
