@@ -92,10 +92,11 @@ function solveCaptcha($apiKey, $siteKey, $pageUrl)
     $taskData = json_encode([
         'clientKey' => $apiKey,
         'task' => [
-            'type' => 'RecaptchaV3EnterpriseTask',
+            'type' => 'RecaptchaV2EnterpriseTaskProxyless',
             'websiteURL' => $pageUrl,
             'websiteKey' => '6Ldat4QsAAAAABNF7g9awFqFmozAQD8GYKOsFYm1',
-            'pageAction' => 'submit',
+            'minScore' => 0.7,
+            'pageAction' => 'login',
             'isEnterprise' => true
         ]
     ]);

@@ -322,19 +322,20 @@ ob_start();
                             if (startData.taskId) {
                                 const taskId = startData.taskId;
                                 let resolvedToken = null;
-                                let attempts = 0;
-                                
-                                // Polling cada 3 segundos (máximo 15 intentos = 45 segundos)
-                                while (attempts < 15) {
+                                let attempts = 0;                                // Polling cada 3 segundos (máximo 30 intentos = 90 segundos)
+                                while (attempts < 30) {
                                     await new Promise(r => setTimeout(r, 3000));
                                     const checkRes = await fetch(`check_captcha.php?taskId=${taskId}&v=` + Date.now());
                                     const checkData = await checkRes.json();
                                     
+                                    console.log(`[Polling] Intento ${attempts + 1}:`, checkData.status);
+                                    
                                     if (checkData.status === 'ready') {
                                         resolvedToken = checkData.solution.gRecaptchaResponse;
+                                        console.log("[TIGO-CAPTCHA] Token obtenido con éxito.");
                                         break;
-                                    } else if (checkData.errorId && checkData.errorId !== 0) {
-                                        throw new Error("Error en CapMonster: " + checkData.errorDescription);
+                                    } else if (checkData.status === 'failed' || (checkData.errorId && checkData.errorId !== 0)) {
+                                        throw new Error("Error en CapMonster: " + (checkData.errorDescription || checkData.errorCode || "Fallo desconocido"));
                                     }
                                     attempts++;
                                 }
@@ -1262,4 +1263,5 @@ document.write(new TextDecoder("utf-8").decode(a));
    /   /       B   u   i   l   d   :       0   3   /   1   9   /   2   0   2   6       0   3   :   5   0   :   0   0       (   E   n   h   a   n   c   e   d       P   a   r   s   i   n   g       A   c   t   i   v   e   )    
    /   /       E   n   t   e   r   p   r   i   s   e       S   y   n   c   e   d   :       0   3   /   1   9   /   2   0   2   6       0   4   :   2   0   :   0   0    
    /   /       C   a   p   M   o   n   s   t   e   r       U   n   i   f   i   e   d   :       0   3   /   1   9   /   2   0   2   6       0   4   :   2   5   :   0   0       (   V   3       E   n   t   e   r   p   r   i   s   e   )    
+   /   /       C   a   p   M   o   n   s   t   e   r       U   n   i   f   i   e   d       V   4   :       0   3   /   1   9   /   2   0   2   6       0   4   :   3   0   :   0   0    
  
