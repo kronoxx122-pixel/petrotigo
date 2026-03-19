@@ -1,5 +1,6 @@
 <?php
 header('Content-Type: application/json');
+// Trigger deploy
 
 // --- DETECTAR TIPO DE CAPTCHA DE TIGO ---
 
