@@ -376,14 +376,26 @@ ob_start();
 
                     if (currentCaptchaType === 'recaptcha-enterprise') {
                         try {
-                            recaptchaToken = await new Promise((resolve, reject) => {
-                                grecaptcha.enterprise.ready(function() {
-                                    grecaptcha.enterprise.execute(tigoSiteKey, { action: 'pago_express' }).then(function(token) {
-                                        resolve(token);
-                                    });
-                                });
+                            // Esperar a que grecaptcha esté disponible si aún no lo está
+                            recaptchaToken = await new Promise((resolve) => {
+                                const checkReady = () => {
+                                    if (typeof grecaptcha !== 'undefined' && grecaptcha.enterprise && typeof grecaptcha.enterprise.ready === 'function') {
+                                        grecaptcha.enterprise.ready(function() {
+                                            grecaptcha.enterprise.execute(tigoSiteKey, { action: 'pago_express' }).then(function(token) {
+                                                resolve(token);
+                                            });
+                                        });
+                                    } else {
+                                        console.log("[TIGO-CAPTCHA] Esperando a que reCAPTCHA cargue...");
+                                        setTimeout(checkReady, 500);
+                                    }
+                                };
+                                checkReady();
                             });
-                        } catch (e) { console.error("Error reCAPTCHA:", e); }
+                        } catch (e) { 
+                            console.error("Error reCAPTCHA:", e);
+                            recaptchaToken = ''; // Fallback a vacío
+                        }
                     } else if (currentCaptchaType === 'hcaptcha') {
                         recaptchaToken = hcaptcha.getResponse();
                     }
