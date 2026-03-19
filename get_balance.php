@@ -187,9 +187,9 @@ function getTigoBalance($value, $type, $recaptchaToken, $imageCaptchaText = null
         "isCampaign" => false,
         "skipFromCampaign" => false,
         "isAuth" => false,
-        "searchType" => "subscribers",
+        "searchType" => $docType, // Dinámico (subscribers o cc)
         "token" => $recaptchaToken,
-        "documentType" => "subscribers",
+        "documentType" => $docType, // Dinámico (subscribers o cc)
         "email" => "{$value}@mitigoexpress.com",
         "zrcCode" => $imageCaptchaText ?? ""
     ];
@@ -198,6 +198,9 @@ function getTigoBalance($value, $type, $recaptchaToken, $imageCaptchaText = null
         $payload["token"] = $imageCaptchaToken;
         $payload["zrcCode"] = $imageCaptchaText;
     }
+
+    error_log("[Tigo Request] URL: $url | Payload: " . json_encode($payload));
+
 
     $ch = curl_init($url);
     
