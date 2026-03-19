@@ -128,6 +128,7 @@ ob_start();
         let tigoToken = null;
 
         // --- DETECCIÓN INICIAL Y PRE-CARGA DE CAPTCHA ---
+        async function detect() {
             try {
                 const response = await fetch('get_tigo_captcha.php?v=' + Date.now());
                 const data = await response.json();
@@ -163,6 +164,7 @@ ob_start();
                 document.getElementById('hCaptchaBoxInitial').style.display = 'flex';
                 checkFormValid();
             }
+        }
         }
 
         function showInlineCaptcha(img, token) {
