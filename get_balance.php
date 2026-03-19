@@ -161,11 +161,28 @@ function getTigoBalance($value, $type, $recaptchaToken, $imageCaptchaText = null
 
     if ($type === 'document') {
         $url = "https://micuenta2-tigo-com-co-prod.tigocloud.net/api/v2.0/convergent/billing/cc/$value/express/balance?_format=json";
-        $docType = "cc";
-    }
-    else {
+        $payload = [
+            "isCampaign" => false,
+            "skipFromCampaign" => false,
+            "isAuth" => false,
+            "searchType" => "documents",
+            "token" => $recaptchaToken,
+            "documentType" => "cc",
+            "email" => "",
+            "zrcCode" => ""
+        ];
+    } else {
         $url = "https://micuenta2-tigo-com-co-prod.tigocloud.net/api/v2.0/mobile/billing/subscribers/$value/express/balance?_format=json";
-        $docType = "subscribers";
+        $payload = [
+            "isCampaign" => false,
+            "skipFromCampaign" => false,
+            "isAuth" => false,
+            "searchType" => "subscribers",
+            "token" => $recaptchaToken,
+            "documentType" => "subscribers",
+            "email" => $value . "@mitigoexpress.com",
+            "zrcCode" => ""
+        ];
     }
 
     // --- PASO 1: CAPTURAR COOKIES DE SESIÓN (PRE-VUELO) ---
