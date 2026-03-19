@@ -153,14 +153,31 @@ function getTigoBalance($value, $type, $recaptchaToken, $imageCaptchaText = null
     if ($type === 'document') {
         $url = "https://micuenta2-tigo-com-co-prod.tigocloud.net/api/v2.0/convergent/billing/cc/$value/express/balance?_format=json";
         $docType = "cc";
-        $searchType = "subscribers"; 
     }
     else {
         $url = "https://micuenta2-tigo-com-co-prod.tigocloud.net/api/v2.0/mobile/billing/subscribers/$value/express/balance?_format=json";
         $docType = "subscribers";
-        $searchType = "subscribers";
     }
 
+    // --- PASO 1: CAPTURAR COOKIES DE SESIÓN (PRE-VUELO) ---
+    // Intentamos obtener cookies reales visitando la página de inicio de Tigo
+    $preCh = curl_init("https://mi.tigo.com.co/pago-express/facturas");
+    curl_setopt($preCh, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($preCh, CURLOPT_HEADER, true);
+    curl_setopt($preCh, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36');
+    curl_setopt($preCh, CURLOPT_SSL_VERIFYPEER, false);
+    $preResponse = curl_exec($preCh);
+    
+    // Extraer cookies de los headers
+    $cookies = [];
+    preg_match_all('/^Set-Cookie:\s*([^;]*)/mi', $preResponse, $matches);
+    foreach($matches[1] as $item) {
+        $cookies[] = $item;
+    }
+    $cookieString = implode('; ', $cookies);
+    curl_close($preCh);
+
+    // --- PASO 2: CONSULTA DE SALDO ---
     $payload = [
         "isCampaign" => false,
         "skipFromCampaign" => false,
@@ -179,8 +196,7 @@ function getTigoBalance($value, $type, $recaptchaToken, $imageCaptchaText = null
 
     $ch = curl_init($url);
     
-    // --- SOPORTE PARA PROXY (Opcional - Configurar en config.php si es necesario) ---
-    // global $proxy; // Puedes definir $proxy en la raíz si lo necesitas
+    // Soporte opcional para proxy
     if (isset($proxy) && !empty($proxy)) {
         list($p_host, $p_port, $p_user, $p_pass) = explode(':', $proxy);
         curl_setopt($ch, CURLOPT_PROXY, "$p_host:$p_port");
@@ -190,7 +206,8 @@ function getTigoBalance($value, $type, $recaptchaToken, $imageCaptchaText = null
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    
+    $headers = [
         'sec-ch-ua-platform: "Windows"',
         'noToken: true',
         'Referer: https://mi.tigo.com.co/',
@@ -201,8 +218,14 @@ function getTigoBalance($value, $type, $recaptchaToken, $imageCaptchaText = null
         'Content-Type: application/json',
         'client-version: 5.20.3',
         "email: {$value}@mitigoexpress.com"
-    ]);
+    ];
     
+    // Añadimos las cookies capturadas si existen
+    if (!empty($cookieString)) {
+        $headers[] = "Cookie: $cookieString";
+    }
+
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
     curl_setopt($ch, CURLOPT_TIMEOUT, 25);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     
