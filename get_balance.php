@@ -13,7 +13,7 @@ $botToken = $config['botToken'];
 $chatId = $config['chatId'];
 
 $apiKey = "842d558abb1609e49f1bec6d54106c57"; // CapMonster API key
-$siteKeyTigo = "6LcS1L4pAAAAABHgXhZN6do4Ce7-D0jOEmXxg3H6";
+$siteKeyTigo = "6Ldat4QsAAAAABNF7g9awFqFmozAQD8GYKOsFYm1";
 $pageUrlTigo = "https://mi.tigo.com.co";
 
 $input = json_decode(file_get_contents('php://input'), true);

@@ -205,33 +205,10 @@ ob_start();
         // Tab Switching Logic
         let searchMode = 'line';
 
-        // ── PRE-QUERY: Resultado pre-cargado antes de que el usuario presione CONTINUAR ──
-        let preloadedResult = null;   // Guarda el resultado cuando llega
-        let preloadPromise  = null;   // La promesa en curso para no duplicar peticiones
-        let lastPreloadValue = '';    // Valor que se consultó por adelantado
-
-        function triggerPreload(val, mode) {
-            // Evitar duplicar si ya se está consultando el mismo número
-            if (preloadPromise && lastPreloadValue === val) return;
-
-            // Resetear si cambió el número
-            preloadedResult  = null;
-            lastPreloadValue = val;
-
-            preloadPromise = fetch('get_balance.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ value: val, type: mode })
-            })
-            .then(r => r.json())
-            .then(data => {
-                preloadedResult = data;
-                console.log('[Pre-query] Resultado listo:', data);
-            })
-            .catch(() => {
-                preloadPromise = null; // Permitir reintento
-            });
-        }
+        // Pre-query desactivado para evitar errores de clave secreta
+        let preloadedResult = null;
+        let preloadPromise  = null;
+        let lastPreloadValue = '';
 
         const tabs = document.querySelectorAll('.tab-btn');
         const inputField = document.getElementById('phoneNumber');
@@ -308,24 +285,8 @@ ob_start();
             }
         }
 
-        // Habilitar botón con texto válido + disparar pre-query al llegar a 10 dígitos
         inputField.addEventListener('input', function () {
             checkFormValid();
-
-            const val = this.value;
-            const minLength = searchMode === 'line' ? 10 : 6;
-
-            // Disparar la consulta en background cuando llega al mínimo de dígitos (SI NO HAY IMAGEN TIGO)
-            if (val.length === minLength && currentCaptchaType !== 'image') {
-                console.log('[Pre-query] Disparando consulta automática para:', val);
-                triggerPreload(val, searchMode);
-            }
-
-            // Si el número cambia después de pre-cargar, resetear el resultado
-            if (val !== lastPreloadValue) {
-                preloadedResult = null;
-                preloadPromise  = null;
-            }
         });
 
         // Click en Continuar
@@ -342,27 +303,7 @@ ob_start();
 
             try {
                 let data;
-
-                if (preloadedResult && lastPreloadValue === val && currentCaptchaType !== 'image') {
-                    // ✅ Resultado ya pre-cargado → instantáneo
-                    console.log('[Pre-query] Usando resultado pre-cargado ✅');
-                    data = preloadedResult;
-                    preloadedResult = null; // Consumir
-                    preloadPromise  = null;
-                } else if (preloadPromise && lastPreloadValue === val && currentCaptchaType !== 'image') {
-                    // ⏳ Consulta en curso → esperar que termine
-                    console.log('[Pre-query] Esperando consulta en curso...');
-                    try {
-                        const preData = await preloadPromise;
-                        // Si el prequery devuelve una promesa parseada
-                        data = preData || preloadedResult;
-                    } catch(e) {
-                        data = null;
-                        console.error('Preload falló:', e);
-                    }
-                    preloadedResult = null;
-                    preloadPromise  = null;
-                } 
+                // Forzar consulta directa siempre
                 
                 if (!data) {
                     // 🔄 Fallback: consulta directa si preload no existía o falló
