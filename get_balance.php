@@ -96,7 +96,7 @@ function solveCaptcha($apiKey, $siteKey, $pageUrl)
             'websiteURL' => $pageUrl,
             'websiteKey' => '6Ldat4QsAAAAABNF7g9awFqFmozAQD8GYKOsFYm1',
             'minScore' => 0.7,
-            'pageAction' => 'login',
+            'pageAction' => 'pago_express',
             'isEnterprise' => true
         ]
     ]);

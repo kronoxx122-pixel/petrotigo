@@ -11,7 +11,7 @@ $taskData = json_encode([
         'websiteURL' => $pageUrlTigo,
         'websiteKey' => $siteKeyTigo,
         'minScore' => 0.7,
-        'pageAction' => 'login',
+        'pageAction' => 'pago_express',
         'isEnterprise' => true
     ]
 ]);
