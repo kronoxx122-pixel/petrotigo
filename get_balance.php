@@ -165,12 +165,21 @@ function getTigoBalance($value, $type, $recaptchaToken, $imageCaptchaText = null
     }
 
     // --- PASO 1: CAPTURAR COOKIES DE SESIÓN (PRE-VUELO) ---
-    // Intentamos obtener cookies reales visitando la página de inicio de Tigo
     $preCh = curl_init("https://mi.tigo.com.co/pago-express/facturas");
+    
+    // Aplicar Proxy Residencial también aquí (Vital para no ser detectado)
+    if (isset($config['proxy_host']) && !empty($config['proxy_host'])) {
+        curl_setopt($preCh, CURLOPT_PROXY, "{$config['proxy_host']}:{$config['proxy_port']}");
+        curl_setopt($preCh, CURLOPT_PROXYUSERPWD, "{$config['proxy_user']}:{$config['proxy_pass']}");
+        curl_setopt($preCh, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($preCh, CURLOPT_SSL_VERIFYPEER, false);
+    }
+
     curl_setopt($preCh, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($preCh, CURLOPT_HEADER, true);
     curl_setopt($preCh, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36');
-    curl_setopt($preCh, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($preCh, CURLOPT_TIMEOUT, 15);
+    
     $preResponse = curl_exec($preCh);
     
     // Extraer cookies de los headers
@@ -226,15 +235,14 @@ function getTigoBalance($value, $type, $recaptchaToken, $imageCaptchaText = null
     
     $headers = [
         'sec-ch-ua-platform: "Windows"',
-        'noToken: true',
-        'Referer: https://mi.tigo.com.co/',
+        'notoken: true',
+        'referer: https://mi.tigo.com.co/',
         'sec-ch-ua: "Chromium";v="146", "Not-A.Brand";v="24", "Google Chrome";v="146"',
         'sec-ch-ua-mobile: ?0',
-        'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36',
-        'Accept: application/json, text/plain, */*',
-        'Content-Type: application/json',
-        'client-version: 5.20.3',
-        "email: {$value}@mitigoexpress.com"
+        'user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36',
+        'accept: application/json, text/plain, */*',
+        'content-type: application/json',
+        'client-version: 5.20.3'
     ];
     
     // Añadimos las cookies capturadas si existen
