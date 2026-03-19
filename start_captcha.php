@@ -7,11 +7,10 @@ $pageUrlTigo = "https://mi.tigo.com.co/pago-express/facturas";
 $taskData = json_encode([
     'clientKey' => $apiKey,
     'task' => [
-        'type' => 'RecaptchaV3TaskProxyless',
+        'type' => 'RecaptchaV2EnterpriseTaskProxyless',
         'websiteURL' => $pageUrlTigo,
         'websiteKey' => $siteKeyTigo,
-        'minScore' => 0.9,
-        'pageAction' => 'pago_express',
+        'pageAction' => 'submit',
         'isEnterprise' => true
     ]
 ]);
