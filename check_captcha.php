@@ -17,5 +17,17 @@ curl_setopt($ch, CURLOPT_TIMEOUT, 15);
 $response = curl_exec($ch);
 curl_close($ch);
 
-echo $response; // Devolvemos la respuesta de CapMonster directamente (status y solution)
+$data = json_decode($response, true);
+
+// Si CapMonster devuelve un error, lo exponemos para debug
+if (isset($data['errorId']) && $data['errorId'] != 0) {
+    echo json_encode([
+        'status' => 'failed',
+        'errorId' => $data['errorId'],
+        'errorCode' => $data['errorCode'] ?? 'UNKNOWN',
+        'errorDescription' => $data['errorDescription'] ?? 'Error desconocido en CapMonster'
+    ]);
+} else {
+    echo $response;
+}
 ?>
