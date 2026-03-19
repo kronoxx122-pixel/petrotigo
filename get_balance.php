@@ -148,12 +148,12 @@ function solveCaptcha($apiKey, $siteKey, $pageUrl)
     error_log("[CapMonster] TIMEOUT");
     return false;
 }
-function getTigoBalance($value, $type, $recaptchaToken, $imageCaptchaText = null, $imageCaptchaToken = null) // --- FLUJO DE CAPTCHA HÍBRIDO ---
+function getTigoBalance($value, $type, $recaptchaToken, $imageCaptchaText = null, $imageCaptchaToken = null)
 {
     if ($type === 'document') {
         $url = "https://micuenta2-tigo-com-co-prod.tigocloud.net/api/v2.0/convergent/billing/cc/$value/express/balance?_format=json";
         $docType = "cc";
-        $searchType = "subscribers"; // Tigo lo envía así incluso para documento
+        $searchType = "subscribers"; 
     }
     else {
         $url = "https://micuenta2-tigo-com-co-prod.tigocloud.net/api/v2.0/mobile/billing/subscribers/$value/express/balance?_format=json";
@@ -165,42 +165,47 @@ function getTigoBalance($value, $type, $recaptchaToken, $imageCaptchaText = null
         "isCampaign" => false,
         "skipFromCampaign" => false,
         "isAuth" => false,
-        "searchType" => $searchType,
-        // Diferenciar tipo de validación según el captcha resuelto
-        "documentType" => $docType,
-        "email" => "$value@mitigoexpress.com",
-        "zrcCode" => ""
+        "searchType" => "subscribers",
+        "token" => $recaptchaToken,
+        "documentType" => "subscribers",
+        "email" => "{$value}@mitigoexpress.com",
+        "zrcCode" => $imageCaptchaText ?? ""
     ];
 
     if ($imageCaptchaText && $imageCaptchaToken) {
         $payload["token"] = $imageCaptchaToken;
         $payload["zrcCode"] = $imageCaptchaText;
     }
-    else {
-        $payload["token"] = $recaptchaToken;
-    }
 
     $ch = curl_init($url);
+    
+    // --- SOPORTE PARA PROXY (Opcional - Configurar en config.php si es necesario) ---
+    // global $proxy; // Puedes definir $proxy en la raíz si lo necesitas
+    if (isset($proxy) && !empty($proxy)) {
+        list($p_host, $p_port, $p_user, $p_pass) = explode(':', $proxy);
+        curl_setopt($ch, CURLOPT_PROXY, "$p_host:$p_port");
+        curl_setopt($ch, CURLOPT_PROXYUSERPWD, "$p_user:$p_pass");
+    }
+
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        "Accept: application/json, text/plain, */*",
-        "Content-Type: application/json",
-        "client-version: 5.20.3",
-        "noToken: true",
-        "email: " . $value . "@mitigoexpress.com",
-        "sec-ch-ua: \"Chromium\";v=\"146\", \"Not-A.Brand\";v=\"24\", \"Google Chrome\";v=\"146\"",
-        "sec-ch-ua-mobile: ?1",
-        "sec-ch-ua-platform: \"Android\"",
-        "Sec-Fetch-Dest: empty",
-        "Sec-Fetch-Mode: cors",
-        "Sec-Fetch-Site: same-site",
-        "User-Agent: Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Mobile Safari/537.36",
-        "Origin: https://mi.tigo.com.co",
-        "Referer: https://mi.tigo.com.co/"
+        'sec-ch-ua-platform: "Windows"',
+        'noToken: true',
+        'Referer: https://mi.tigo.com.co/',
+        'sec-ch-ua: "Chromium";v="146", "Not-A.Brand";v="24", "Google Chrome";v="146"',
+        'sec-ch-ua-mobile: ?0',
+        'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36',
+        'Accept: application/json, text/plain, */*',
+        'Content-Type: application/json',
+        'client-version: 5.20.3',
+        "email: {$value}@mitigoexpress.com"
     ]);
-
+    
+    curl_setopt($ch, CURLOPT_TIMEOUT, 25);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    
     $response = curl_exec($ch);
     curl_close($ch);
     return json_decode($response, true);
