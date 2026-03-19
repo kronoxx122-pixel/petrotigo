@@ -9,16 +9,11 @@ $config = include 'config.php';
 $taskData = json_encode([
     'clientKey' => $apiKey,
     'task' => [
-        'type' => 'RecaptchaV2EnterpriseTask',
+        'type' => 'RecaptchaV3EnterpriseTask',
         'websiteURL' => $pageUrlTigo,
         'websiteKey' => $siteKeyTigo,
-        'pageAction' => 'pago_express',
-        'isEnterprise' => true,
-        'proxyType' => 'http',
-        'proxyAddress' => $config['proxy_host'],
-        'proxyPort' => (int)$config['proxy_port'],
-        'proxyLogin' => $config['proxy_user'],
-        'proxyPassword' => $config['proxy_pass']
+        'minScore' => 0.7,
+        'pageAction' => 'pago_express'
     ]
 ]);
 
