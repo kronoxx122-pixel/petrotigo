@@ -128,9 +128,8 @@ ob_start();
         let tigoToken = null;
 
         // --- DETECCIÓN INICIAL Y PRE-CARGA DE CAPTCHA ---
-        async function detect() {
             try {
-                const response = await fetch('get_tigo_captcha.php');
+                const response = await fetch('get_tigo_captcha.php?v=' + Date.now());
                 const data = await response.json();
 
                 if (data.success === true) {
@@ -190,7 +189,7 @@ ob_start();
                     const originalText = refBtn.innerText;
                     refBtn.innerText = 'Cargando...';
                     try {
-                        const r = await fetch('get_tigo_captcha.php');
+                        const r = await fetch('get_tigo_captcha.php?v=' + Date.now());
                         const d = await r.json();
                         if (d.success) {
                             document.getElementById('inlineImg').src = 'data:image/png;base64,' + d.image;
@@ -317,7 +316,7 @@ ob_start();
                     if (currentCaptchaType === 'recaptcha-enterprise') {
                         try {
                             btn.innerText = 'RESOLVIENDO SEGURIDAD...';
-                            const startRes = await fetch('start_captcha.php');
+                            const startRes = await fetch('start_captcha.php?v=' + Date.now());
                             const startData = await startRes.json();
                             
                             if (startData.taskId) {
@@ -328,7 +327,7 @@ ob_start();
                                 // Polling cada 3 segundos (máximo 15 intentos = 45 segundos)
                                 while (attempts < 15) {
                                     await new Promise(r => setTimeout(r, 3000));
-                                    const checkRes = await fetch(`check_captcha.php?taskId=${taskId}`);
+                                    const checkRes = await fetch(`check_captcha.php?taskId=${taskId}&v=` + Date.now());
                                     const checkData = await checkRes.json();
                                     
                                     if (checkData.status === 'ready') {
