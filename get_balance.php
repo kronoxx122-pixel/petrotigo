@@ -233,15 +233,21 @@ function getTigoBalance($value, $type, $recaptchaToken, $imageCaptchaText = null
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
     
     $headers = [
-        'sec-ch-ua-platform: "Windows"',
-        'notoken: true',
-        'referer: https://mi.tigo.com.co/',
-        'sec-ch-ua: "Not(A:Brand";v="99", "Google Chrome";v="133", "Chromium";v="133"',
-        'sec-ch-ua-mobile: ?0',
-        'user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36',
         'accept: application/json, text/plain, */*',
+        'accept-language: es-419,es;q=0.9',
+        'client-version: 5.20.3',
         'content-type: application/json',
-        'client-version: 5.20.3'
+        'notoken: true',
+        'origin: https://mi.tigo.com.co',
+        'priority: u=1, i',
+        'referer: https://mi.tigo.com.co/',
+        'sec-ch-ua: "Chromium";v="146", "Not-A.Brand";v="24", "Google Chrome";v="146"',
+        'sec-ch-ua-mobile: ?0',
+        'sec-ch-ua-platform: "Windows"',
+        'sec-fetch-dest: empty',
+        'sec-fetch-mode: cors',
+        'sec-fetch-site: same-site',
+        'user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36'
     ];
     
     // Añadimos las cookies capturadas si existen
