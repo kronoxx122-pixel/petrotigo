@@ -244,7 +244,11 @@ function getTigoBalance($value, $type, $recaptchaToken, $imageCaptchaText = null
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     
     $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
+    
+    error_log("[Tigo API] Code: $httpCode | Response: " . $response);
+    
     return json_decode($response, true);
 }
 
@@ -286,57 +290,33 @@ if (!$token && !$imageCaptchaText) {
 // Realizar la consulta de saldo
 $data = getTigoBalance($value, $type, $token, $imageCaptchaText, $imageCaptchaToken);
 
-$invoices = [];
-$totalDue = 0;
-$hasDebt = false;
+$foundItems = [];
+if (isset($data['data']['mobile']) && is_array($data['data']['mobile'])) $foundItems = array_merge($foundItems, $data['data']['mobile']);
+if (isset($data['data']['convergent']) && is_array($data['data']['convergent'])) $foundItems = array_merge($foundItems, $data['data']['convergent']);
+if (isset($data['data']['billingAccounts']) && is_array($data['data']['billingAccounts'])) $foundItems = array_merge($foundItems, $data['data']['billingAccounts']);
+if (isset($data['data']['invoices']) && is_array($data['data']['invoices'])) $foundItems = array_merge($foundItems, $data['data']['invoices']);
 
-// Extract multiple invoices if available
-if (isset($data['data']['mobile']) && is_array($data['data']['mobile'])) {
-    foreach ($data['data']['mobile'] as $mobile) {
-        if (isset($mobile['dueAmount']['value']) && floatval($mobile['dueAmount']['value']) > 0) {
-            $hasDebt = true;
-            $amt = floatval($mobile['dueAmount']['value']);
-            $totalDue += $amt;
-            $realLine = $mobile['targetMsisdn']['formattedValue'] ?? ($mobile['billingAccountId']['formattedValue'] ?? ($mobile['susbcriberId'] ?? ($mobile['subscriberId'] ?? $value)));
-            $invoices[] = [
-                'line' => $realLine,
-                'amount' => $mobile['dueAmount']['formattedValue'] ?? '',
-                'amountRaw' => $amt,
-                'dueDate' => $mobile['dueDate']['formattedValue'] ?? ''
-            ];
-        }
-    }
-}
-elseif (isset($data['data']['convergent']) && is_array($data['data']['convergent'])) {
-    foreach ($data['data']['convergent'] as $conv) {
-        if (isset($conv['balance']['value']) && floatval($conv['balance']['value']) > 0) {
-            $hasDebt = true;
-            $amt = floatval($conv['balance']['value']);
-            $totalDue += $amt;
-            $realLine = $conv['targetMsisdn']['formattedValue'] ?? ($conv['billingAccountId']['formattedValue'] ?? ($conv['accountId'] ?? $value));
-            $invoices[] = [
-                'line' => $realLine,
-                'amount' => $conv['balance']['formattedValue'] ?? '',
-                'amountRaw' => $amt,
-                'dueDate' => $conv['paymentDate']['formattedValue'] ?? ''
-            ];
-        }
-    }
-}
-elseif (isset($data['data']['billingAccounts']) && is_array($data['data']['billingAccounts'])) {
-    foreach ($data['data']['billingAccounts'] as $acc) {
-        if (isset($acc['balance']['value']) && floatval($acc['balance']['value']) > 0) {
-            $hasDebt = true;
-            $amt = floatval($acc['balance']['value']);
-            $totalDue += $amt;
-            $realLine = $acc['targetMsisdn']['formattedValue'] ?? ($acc['billingAccountId']['formattedValue'] ?? ($acc['accountId'] ?? $value));
-            $invoices[] = [
-                'line' => $realLine,
-                'amount' => $acc['balance']['formattedValue'] ?? '',
-                'amountRaw' => $amt,
-                'dueDate' => $acc['paymentDate']['formattedValue'] ?? ''
-            ];
-        }
+foreach ($foundItems as $item) {
+    // Buscar monto en múltiples campos posibles
+    $val = $item['dueAmount']['value'] ?? ($item['balance']['value'] ?? ($item['amount']['value'] ?? ($item['amountRequested']['value'] ?? null)));
+    
+    if ($val !== null && floatval($val) > 0) {
+        $hasDebt = true;
+        $amtValue = floatval($val);
+        $totalDue += $amtValue;
+        
+        $realLine = $item['targetMsisdn']['formattedValue'] ?? 
+                    ($item['billingAccountId']['formattedValue'] ?? 
+                    ($item['susbcriberId'] ?? 
+                    ($item['subscriberId'] ?? 
+                    ($item['accountId'] ?? $value))));
+                    
+        $invoices[] = [
+            'line' => $realLine,
+            'amount' => $item['dueAmount']['formattedValue'] ?? ($item['balance']['formattedValue'] ?? ($item['amount']['formattedValue'] ?? "$ " . number_format($amtValue, 0, ',', '.'))),
+            'amountRaw' => $amtValue,
+            'dueDate' => $item['dueDate']['formattedValue'] ?? ($item['paymentDate']['formattedValue'] ?? '')
+        ];
     }
 }
 
