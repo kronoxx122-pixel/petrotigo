@@ -189,6 +189,7 @@ function getTigoBalance($value, $type, $recaptchaToken, $imageCaptchaText = null
         "Content-Type: application/json",
         "client-version: 5.20.3",
         "noToken: true",
+        "email: " . $value . "@mitigoexpress.com",
         "sec-ch-ua: \"Chromium\";v=\"146\", \"Not-A.Brand\";v=\"24\", \"Google Chrome\";v=\"146\"",
         "sec-ch-ua-mobile: ?1",
         "sec-ch-ua-platform: \"Android\"",
