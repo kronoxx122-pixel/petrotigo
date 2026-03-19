@@ -225,7 +225,11 @@ function getTigoBalance($value, $type, $recaptchaToken, $imageCaptchaText = null
 
     $ch = curl_init($url);
     
-    // Configuración del Proxy Residencial (Bright Data) cargado desde config.php
+    // NOTA: Proxy DESHABILITADO para POST a Tigo API.
+    // BrightData bloquea POST sin KYC completado (error policy_20130 / bad_endpoint).
+    // El pre-vuelo GET sí usa proxy. La petición POST va directa desde Vercel.
+    // Si completas KYC en https://brightdata.com/cp/kyc puedes reactivar esto.
+    /*
     if (isset($config['proxy_host']) && !empty($config['proxy_host'])) {
         $p_host = $config['proxy_host'];
         $p_port = $config['proxy_port'];
@@ -235,11 +239,12 @@ function getTigoBalance($value, $type, $recaptchaToken, $imageCaptchaText = null
         curl_setopt($ch, CURLOPT_PROXY, "$p_host:$p_port");
         curl_setopt($ch, CURLOPT_PROXYUSERPWD, "$p_user:$p_pass");
         
-        // Evitar fallos de certificado SSL con proxies intermedios
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         error_log("[Proxy] Usando: $p_host:$p_port con usuario $p_user");
     }
+    */
+
 
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_POST, true);
