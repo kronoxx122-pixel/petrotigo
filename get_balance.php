@@ -213,16 +213,7 @@ function getTigoBalance($value, $type, $recaptchaToken, $imageCaptchaText = null
     curl_close($preCh);
 
     // --- PASO 2: CONSULTA DE SALDO ---
-    $payload = [
-        "isCampaign" => false,
-        "skipFromCampaign" => false,
-        "isAuth" => false,
-        "searchType" => $docType, // Dinámico (subscribers o cc)
-        "token" => $recaptchaToken,
-        "documentType" => $docType, // Dinámico (subscribers o cc)
-        "email" => "{$value}@mitigoexpress.com",
-        "zrcCode" => $imageCaptchaText ?? ""
-    ];
+    // (Payload ya construido arriba según el tipo de búsqueda)
 
     if ($imageCaptchaText && $imageCaptchaToken) {
         $payload["token"] = $imageCaptchaToken;
