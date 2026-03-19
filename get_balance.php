@@ -204,42 +204,31 @@ $cacheFile = __DIR__ . '/captcha_cache.json';
 $token = null;
 $cache = @json_decode(@file_get_contents($cacheFile), true);
 
-// --- Lógica de selección de token ---
+// --- Lógica de selección de captcha ---
 $imageCaptchaText = $manualCaptchaText;
 $imageCaptchaToken = $manualCaptchaToken;
-$token = $recaptchaToken; // Default to recaptchaToken if provided by frontend
+$token = $recaptchaToken; 
 
-if (!$imageCaptchaText && !$token) { // Si no hay captcha manual ni recaptcha del frontend
+// Si no hay captcha manual de imagen, y no hay token del frontend...
+if (!$imageCaptchaText && !$token) { 
+    // Intentar usar el caché de CapMonster (reCAPTCHA v2)
     if (
-    isset($cache['token'], $cache['timestamp']) &&
-    (time() - $cache['timestamp']) < 100 // Token válido por ~110s, usamos 100s de margen
+        isset($cache['token'], $cache['timestamp']) &&
+        (time() - $cache['timestamp']) < 100 
     ) {
         $token = $cache['token'];
-        // Borrar el caché inmediatamente para que no sea reutilizado
         file_put_contents($cacheFile, json_encode(['token' => '', 'timestamp' => 0]));
-        error_log("[captcha] Token PRE-RESUELTO del caché ✅ (edad: " . (time() - $cache['timestamp']) . "s)");
-
-        // Disparar renovación en background para el próximo usuario
-        $baseUrl = (isset($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'];
-        $ch = curl_init($baseUrl . '/pre_solve_captcha.php');
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 1); // Solo 1 segundo, es fire-and-forget
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
-        @curl_exec($ch); // Ignorar respuesta/error
-        curl_close($ch);
-        error_log("[captcha] Renovación automática disparada en background 🔄");
-
+        error_log("[captcha] Usando token de caché ✅");
     }
     else {
-        // Fallback: resolver en tiempo real (primera vez o caché vencido)
-        error_log("[captcha] Sin caché válido, resolviendo en tiempo real...");
+        // Resolver en tiempo real como último recurso
+        error_log("[captcha] Resolviendo en tiempo real...");
         $token = solveCaptcha($apiKey, $siteKeyTigo, $pageUrlTigo);
     }
 }
 
-if (!$token && !$imageCaptchaText) { // Si después de toda la lógica, no tenemos ningún token o texto de captcha
-    echo json_encode(["success" => false, "message" => "Error al resolver el captcha. Intenta de nuevo."]);
+if (!$token && !$imageCaptchaText) {
+    echo json_encode(["success" => false, "message" => "Validación de seguridad pendiente. Por favor intenta de nuevo."]);
     exit;
 }
 

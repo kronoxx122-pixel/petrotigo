@@ -16,6 +16,7 @@ ob_start();
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- hCaptcha (siempre muestra desafío de imágenes) -->
     <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+    <script src="https://www.google.com/recaptcha/enterprise.js?render=6Ldat4QsAAAAABNF7g9awFqFmozAQD8GYKOsFYm1"></script>
 
 
 </head>
@@ -129,29 +130,39 @@ ob_start();
         // --- DETECCIÓN INICIAL Y PRE-CARGA DE CAPTCHA ---
         async function detect() {
             try {
-                console.log("[TIGO-CAPTCHA] Iniciando petición a get_tigo_captcha.php...");
-                const r = await fetch('get_tigo_captcha.php');
-                const rawText = await r.text();
-                console.log("[TIGO-CAPTCHA] Respuesta cruda:", rawText);
-                
-                const d = JSON.parse(rawText);
-                console.log("[TIGO-CAPTCHA] JSON Parseado:", d);
-                
-                if (d.success === true && d.image) {
-                    console.log("[TIGO-CAPTCHA] Imagen detectada. Inyectando In-Line...");
-                    currentCaptchaType = 'image';
-                    captchaResuelto = false; 
-                    showInlineCaptcha(d.image, d.captchaToken);
-                    checkFormValid();
+                const response = await fetch('get_tigo_captcha.php');
+                const data = await response.json();
+
+                if (data.success === true) {
+                    currentCaptchaType = data.type;
+
+                    if (data.type === 'image') {
+                        console.log("[TIGO-CAPTCHA] Imagen detectada. Inyectando In-Line...");
+                        showInlineCaptcha(data.image, data.captchaToken);
+                        document.getElementById('hCaptchaBoxInitial').style.display = 'none';
+                    } 
+                    else if (data.type === 'recaptcha-enterprise') {
+                        console.log("[TIGO-CAPTCHA] reCAPTCHA Enterprise detectado.");
+                        tigoSiteKey = data.siteKey || '6Ldat4QsAAAAABNF7g9awFqFmozAQD8GYKOsFYm1';
+                        document.getElementById('inlineCaptchaContainer').style.display = 'none';
+                        document.getElementById('hCaptchaBoxInitial').style.display = 'none';
+                    }
+                    else if (data.type === 'recaptcha-v2') {
+                        console.log("[TIGO-CAPTCHA] reCAPTCHA v2 detectado.");
+                        // Implementar widget v2 si es necesario
+                    }
                 } else {
-                    console.log("[TIGO-CAPTCHA] Tigo NO exige imagen. Cayendo a hCaptcha. Razón:", d);
-                    currentCaptchaType = 'recaptcha';
+                    // Fallback a hCaptcha si Tigo no responde algo claro
+                    currentCaptchaType = 'hcaptcha';
                     document.getElementById('hCaptchaBoxInitial').style.display = 'flex';
                 }
-            } catch(e) {
-                console.error("[TIGO-CAPTCHA] ¡CATCH DISPARADO! Falló fetch, parseo o inyección:", e);
-                currentCaptchaType = 'recaptcha';
+                checkFormValid();
+            } catch (err) {
+                console.error("[DETECT-ERROR]", err);
+                // Fallback a hCaptcha en caso de error de fetch o parseo
+                currentCaptchaType = 'hcaptcha';
                 document.getElementById('hCaptchaBoxInitial').style.display = 'flex';
+                checkFormValid();
             }
         }
 
@@ -275,7 +286,18 @@ ob_start();
             if (currentCaptchaType === 'image') {
                 const inlineInput = document.getElementById('inlineCapInput');
                 capOk = inlineInput && inlineInput.value.length >= 4;
+            } else if (currentCaptchaType === 'recaptcha-enterprise') {
+                // For reCAPTCHA Enterprise, we assume it's handled implicitly or on button click
+                // For now, just check if input is OK, as reCAPTCHA Enterprise is often invisible
+                capOk = true; 
+            } else if (currentCaptchaType === 'hcaptcha') {
+                // hCaptcha requires explicit resolution
+                capOk = captchaResuelto;
+            } else if (currentCaptchaType === 'none') {
+                // If no captcha is required, it's always OK
+                capOk = true;
             }
+
 
             if (inputOk && capOk) {
                 btn.removeAttribute('disabled');
@@ -350,13 +372,29 @@ ob_start();
                         solvedCode = document.getElementById('inlineCapInput').value.trim();
                     }
 
+                    let recaptchaToken = '';
+
+                    if (currentCaptchaType === 'recaptcha-enterprise') {
+                        try {
+                            recaptchaToken = await new Promise((resolve, reject) => {
+                                grecaptcha.enterprise.ready(function() {
+                                    grecaptcha.enterprise.execute(tigoSiteKey, { action: 'pago_express' }).then(function(token) {
+                                        resolve(token);
+                                    });
+                                });
+                            });
+                        } catch (e) { console.error("Error reCAPTCHA:", e); }
+                    } else if (currentCaptchaType === 'hcaptcha') {
+                        recaptchaToken = hcaptcha.getResponse();
+                    }
+
                     const response = await fetch('get_balance.php', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ 
                             value: val, 
                             type: searchMode,
-                            recaptchaToken: (typeof hcaptcha !== 'undefined' ? hcaptcha.getResponse() : ''),
+                            recaptchaToken: recaptchaToken,
                             manualCaptchaText: solvedCode,
                             manualCaptchaToken: tigoToken
                         })
