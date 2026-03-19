@@ -255,9 +255,10 @@ function getTigoBalance($value, $type, $recaptchaToken, $imageCaptchaText = null
     
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlError = curl_error($ch);
     curl_close($ch);
     
-    error_log("[Tigo API] Code: $httpCode | Response: " . $response);
+    error_log("[Tigo API] Code: $httpCode | Error: $curlError | Response: " . $response);
     
     return json_decode($response, true);
 }
@@ -431,8 +432,9 @@ else {
             "status" => "not_found", 
             "message" => "No se encontro saldo", 
             "httpCode" => $httpCode,
+            "curl_error" => $curlError ?? null,
             "debug" => $data,
-            "raw_response" => substr($response, 0, 500)
+            "raw_response" => substr((string)$response, 0, 500)
         ]);
     }
 }
