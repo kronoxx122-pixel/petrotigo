@@ -1,63 +1,65 @@
 <?php
 /**
  * DIAGNÓSTICO DIRECTO - Tigo Balance
- * Este script aísla y replica EXACTAMENTE la petición del navegador.
- * Sin capas intermedias, sin proxies que puedan fallar.
+ * Usa 2Captcha para resolver reCAPTCHA v3 Enterprise.
+ * Sin proxy (BrightData bloquea POST sin KYC).
  */
 header('Content-Type: application/json');
 set_time_limit(120);
 
-$config = require __DIR__ . '/config.php';
-$apiKey = "842d558abb1609e49f1bec6d54106c57";
+$twoCaptchaKey = "79d0a9dbd67f003b17f58c5ac657cefb";
 $number = $_GET['n'] ?? '3001063286';
-$useProxy = ($_GET['proxy'] ?? '1') === '1';
+$type = $_GET['type'] ?? 'line'; // line o document
 
 $results = [];
 
 // ============================================================
-// PASO 1: Resolver CAPTCHA con CapMonster
+// PASO 1: Resolver CAPTCHA con 2Captcha
 // ============================================================
-$results['step1_captcha'] = ['status' => 'starting'];
+$results['step1_captcha'] = ['status' => 'creating_task', 'service' => '2captcha'];
 
 $taskData = json_encode([
-    'clientKey' => $apiKey,
+    'clientKey' => $twoCaptchaKey,
     'task' => [
-        'type' => 'RecaptchaV3EnterpriseTask',
+        'type' => 'RecaptchaV3TaskProxyless',
         'websiteURL' => 'https://mi.tigo.com.co/pago-express/facturas',
         'websiteKey' => '6Ldat4QsAAAAABNF7g9awFqFmozAQD8GYKOsFYm1',
         'minScore' => 0.9,
-        'pageAction' => 'submit'
+        'pageAction' => 'submit',
+        'isEnterprise' => true
     ]
 ]);
 
-$ch = curl_init('https://api.capmonster.cloud/createTask');
+$ch = curl_init('https://api.2captcha.com/createTask');
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_POSTFIELDS, $taskData);
 curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
 curl_setopt($ch, CURLOPT_TIMEOUT, 15);
 $createRes = curl_exec($ch);
+$createErr = curl_error($ch);
 curl_close($ch);
 
 $createResult = json_decode($createRes, true);
-$results['step1_captcha']['createTask'] = $createResult;
+$results['step1_captcha']['createTask_response'] = $createResult;
+$results['step1_captcha']['createTask_curl_error'] = $createErr;
 
-if (!isset($createResult['taskId'])) {
-    $results['step1_captcha']['error'] = 'No taskId returned';
-    echo json_encode($results, JSON_PRETTY_PRINT);
+if (!isset($createResult['taskId']) || ($createResult['errorId'] ?? 1) !== 0) {
+    $results['step1_captcha']['error'] = 'No se pudo crear la tarea: ' . ($createResult['errorDescription'] ?? $createRes);
+    echo json_encode($results, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
     exit;
 }
 
 $taskId = $createResult['taskId'];
 $token = null;
 
-// Polling (max 60s)
+// Polling (max 90s)
 for ($i = 0; $i < 30; $i++) {
-    sleep(2);
-    $ch = curl_init('https://api.capmonster.cloud/getTaskResult');
+    sleep(3);
+    $ch = curl_init('https://api.2captcha.com/getTaskResult');
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(['clientKey' => $apiKey, 'taskId' => $taskId]));
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(['clientKey' => $twoCaptchaKey, 'taskId' => $taskId]));
     curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
     curl_setopt($ch, CURLOPT_TIMEOUT, 10);
     $pollRes = curl_exec($ch);
@@ -71,54 +73,52 @@ for ($i = 0; $i < 30; $i++) {
         $results['step1_captcha']['attempts'] = $i + 1;
         break;
     }
+    if (($pollResult['errorId'] ?? 0) !== 0) {
+        $results['step1_captcha']['error'] = 'Error en poll: ' . ($pollResult['errorDescription'] ?? '');
+        echo json_encode($results, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        exit;
+    }
 }
 
 if (!$token) {
-    $results['step1_captcha']['error'] = 'Captcha timeout after 60s';
-    echo json_encode($results, JSON_PRETTY_PRINT);
+    $results['step1_captcha']['error'] = 'Captcha timeout after 90s';
+    echo json_encode($results, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
     exit;
 }
 
 // ============================================================
-// PASO 2: Construir petición IDÉNTICA al navegador
+// PASO 2: Petición a Tigo SIN PROXY
 // ============================================================
-$url = "https://micuenta2-tigo-com-co-prod.tigocloud.net/api/v2.0/mobile/billing/subscribers/{$number}/express/balance?_format=json";
+if ($type === 'document') {
+    $url = "https://micuenta2-tigo-com-co-prod.tigocloud.net/api/v2.0/convergent/billing/cc/{$number}/express/balance?_format=json";
+    $payload = [
+        "isCampaign" => false, "skipFromCampaign" => false, "isAuth" => false,
+        "searchType" => "documents", "token" => $token,
+        "documentType" => "cc", "email" => "", "zrcCode" => ""
+    ];
+} else {
+    $url = "https://micuenta2-tigo-com-co-prod.tigocloud.net/api/v2.0/mobile/billing/subscribers/{$number}/express/balance?_format=json";
+    $payload = [
+        "isCampaign" => false, "skipFromCampaign" => false, "isAuth" => false,
+        "searchType" => "subscribers", "token" => $token,
+        "documentType" => "subscribers", "email" => "{$number}@mitigoexpress.com", "zrcCode" => ""
+    ];
+}
 
-$payload = json_encode([
-    "isCampaign" => false,
-    "skipFromCampaign" => false,
-    "isAuth" => false,
-    "searchType" => "subscribers",
-    "token" => $token,
-    "documentType" => "subscribers",
-    "email" => "{$number}@mitigoexpress.com",
-    "zrcCode" => ""
-]);
+$payloadJson = json_encode($payload);
 
 $results['step2_request'] = [
     'url' => $url,
-    'payload_length' => strlen($payload),
-    'payload_preview' => substr($payload, 0, 200) . '...',
-    'using_proxy' => $useProxy
+    'payload_length' => strlen($payloadJson),
+    'type' => $type
 ];
 
 $ch = curl_init($url);
-
-// Proxy
-if ($useProxy && isset($config['proxy_host']) && !empty($config['proxy_host'])) {
-    curl_setopt($ch, CURLOPT_PROXY, "{$config['proxy_host']}:{$config['proxy_port']}");
-    curl_setopt($ch, CURLOPT_PROXYUSERPWD, "{$config['proxy_user']}:{$config['proxy_pass']}");
-    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-}
-
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_POST, true);
-curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-curl_setopt($ch, CURLOPT_HEADER, true); // Capturar headers de respuesta
+curl_setopt($ch, CURLOPT_POSTFIELDS, $payloadJson);
+curl_setopt($ch, CURLOPT_HEADER, true);
 curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-
-// Headers EXACTOS del navegador
 curl_setopt($ch, CURLOPT_HTTPHEADER, [
     'accept: application/json, text/plain, */*',
     'accept-language: es-419,es;q=0.9',
@@ -141,23 +141,16 @@ $fullResponse = curl_exec($ch);
 $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 $headerSize = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
 $curlError = curl_error($ch);
-$curlInfo = curl_getinfo($ch);
 curl_close($ch);
 
-// Separar headers y body
 $responseHeaders = substr($fullResponse, 0, $headerSize);
 $responseBody = substr($fullResponse, $headerSize);
 
 $results['step3_response'] = [
     'http_code' => $httpCode,
     'curl_error' => $curlError,
-    'response_headers' => $responseHeaders,
-    'response_body' => $responseBody,
     'response_body_decoded' => json_decode($responseBody, true),
-    'effective_url' => $curlInfo['url'],
-    'primary_ip' => $curlInfo['primary_ip'],
-    'total_time' => $curlInfo['total_time'],
-    'connect_time' => $curlInfo['connect_time']
+    'response_headers' => $responseHeaders
 ];
 
 echo json_encode($results, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
