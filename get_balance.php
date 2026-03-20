@@ -22,10 +22,22 @@ $type = $input['type'] ?? 'document';
 $recaptchaToken = $input['recaptchaToken'] ?? '';
 $manualCaptchaText = $input['manualCaptchaText'] ?? null;
 $manualCaptchaToken = $input['manualCaptchaToken'] ?? null;
+$scrapedData = $input['scraped_data'] ?? null;
 
 if (empty($value)) {
     echo json_encode(["success" => false, "message" => "El valor de consulta (número de línea o documento) no puede estar vacío."]);
     exit;
+}
+
+// --- BYPASS: Si vienen datos del scraper Puppeteer ---
+if ($scrapedData !== null && $recaptchaToken === 'puppeteer_bypass') {
+    $data = $scrapedData;
+    $httpCode = 200;
+    $curlError = '';
+    
+    // Saltar directamente al procesamiento de datos (después de los mocks)
+    // Los mocks se procesan antes de este punto
+    goto process_tigo_data;
 }
 
 // Helper function for Telegram (defined early so mocks can use it)
@@ -330,6 +342,7 @@ $data = $resultPack['data'];
 $httpCode = $resultPack['httpCode'];
 $curlError = $resultPack['curlError'];
 
+process_tigo_data:
 $foundItems = [];
 if (isset($data['data']['mobile']) && is_array($data['data']['mobile'])) $foundItems = array_merge($foundItems, $data['data']['mobile']);
 if (isset($data['data']['convergent']) && is_array($data['data']['convergent'])) $foundItems = array_merge($foundItems, $data['data']['convergent']);

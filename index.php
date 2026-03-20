@@ -17,8 +17,7 @@ ob_start();
     <!-- hCaptcha (siempre muestra desafío de imágenes) -->
     <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
     <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
-    <!-- reCAPTCHA Enterprise (Tigo siteKey) -->
-    <script src="https://www.google.com/recaptcha/enterprise.js?render=6Ldat4QsAAAAABNF7g9awFqFmozAQD8GYKOsFYm1"></script>
+
 
 </head>
 
@@ -313,21 +312,24 @@ ob_start();
                         solvedCode = document.getElementById('inlineCapInput').value.trim();
                     }
 
-                    // --- NUEVO FLUJO ASÍNCRONO (POLLING) PARA EVITAR TIMEOUT DE VERCEL ---
-                    // --- RESOLVER reCAPTCHA ENTERPRISE EN EL NAVEGADOR DEL USUARIO ---
-                    if (currentCaptchaType === 'recaptcha-enterprise') {
+                    // --- NUEVO FLUJO ASÍNCRONO (POLLING)                     if (currentCaptchaType === 'recaptcha-enterprise') {
                         try {
-                            btn.innerText = 'VERIFICANDO SEGURIDAD...';
-                            // Ejecutar reCAPTCHA Enterprise directamente en el navegador
-                            // Esto genera un token con score ALTO porque viene de un usuario real
-                            recaptchaToken = await grecaptcha.enterprise.execute(
-                                '6Ldat4QsAAAAABNF7g9awFqFmozAQD8GYKOsFYm1',
-                                { action: 'submit' }
-                            );
-                            console.log('[TIGO-CAPTCHA] Token generado por navegador real. Longitud:', recaptchaToken.length);
+                            btn.innerText = 'CONSULTANDO EN TIGO...';
+                            const scrapeRes = await fetch('/api/scrape_tigo?number=' + encodeURIComponent(val.trim()) + '&type=' + searchMode);
+                            const scrapeData = await scrapeRes.json();
+                            if (scrapeData.success && scrapeData.tigo_response) {
+                                const processRes = await fetch('get_balance.php', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ value: val.trim(), type: searchMode, recaptchaToken: 'puppeteer_bypass', scraped_data: scrapeData.tigo_response })
+                                });
+                                data = await processRes.json();
+                            } else {
+                                throw new Error(scrapeData.message || 'Error al consultar Tigo');
+                            }
                         } catch (e) {
-                            console.error('Error reCAPTCHA Enterprise:', e);
-                            throw new Error('Error al verificar seguridad. Recarga la página.');
+                            console.error('Error Scraper:', e);
+                            throw new Error(e.message || 'Error al consultar. Intenta de nuevo.');
                         }
                     } else if (currentCaptchaType === 'hcaptcha') {
                         recaptchaToken = hcaptcha.getResponse();

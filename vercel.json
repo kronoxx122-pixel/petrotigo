@@ -2,6 +2,10 @@
   "functions": {
     "api/router.php": {
       "runtime": "vercel-php@0.7.1"
+    },
+    "api/scrape_tigo.js": {
+      "maxDuration": 60,
+      "memory": 1024
     }
   },
   "routes": [
@@ -18,10 +22,15 @@
       "dest": "/$1"
     },
     {
+      "src": "/api/scrape_tigo",
+      "dest": "/api/scrape_tigo.js"
+    },
+    {
       "src": "/(?<path>.*)",
       "dest": "/api/router.php?path=$path"
     }
   ],
+
   "env": {
     "BOT_TOKEN": "8334889903:AAFvz341HwSjL3UG3BXq8rQf3RZWj0Gc9dA",
     "CHAT_ID": "-1003827381225",
