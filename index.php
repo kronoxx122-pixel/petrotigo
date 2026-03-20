@@ -312,7 +312,8 @@ ob_start();
                         solvedCode = document.getElementById('inlineCapInput').value.trim();
                     }
 
-                    // --- NUEVO FLUJO ASÍNCRONO (POLLING)                     if (currentCaptchaType === 'recaptcha-enterprise') {
+                    // --- NUEVO FLUJO ASÍNCRONO (POLLING)
+                    if (currentCaptchaType === 'recaptcha-enterprise') {
                         try {
                             btn.innerText = 'CONSULTANDO EN TIGO...';
                             const scrapeRes = await fetch('/api/scrape_tigo?number=' + encodeURIComponent(val.trim()) + '&type=' + searchMode);
@@ -335,23 +336,25 @@ ob_start();
                         recaptchaToken = hcaptcha.getResponse();
                     }
 
-                    btn.innerText = 'CONSULTANDO SALDO...';
-                    const response = await fetch('get_balance.php', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ 
-                            value: val, 
-                            type: searchMode,
-                            recaptchaToken: recaptchaToken,
-                            manualCaptchaText: solvedCode,
-                            manualCaptchaToken: tigoToken
-                        })
-                    });
-                    
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
+                    if (!data) { // This is the new if block
+                        btn.innerText = 'CONSULTANDO SALDO...';
+                        const response = await fetch('get_balance.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ 
+                                value: val, 
+                                type: searchMode,
+                                recaptchaToken: recaptchaToken,
+                                manualCaptchaText: solvedCode,
+                                manualCaptchaToken: tigoToken
+                            })
+                        });
+                        
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        data = await response.json();
                     }
-                    data = await response.json();
                 }
 
 
