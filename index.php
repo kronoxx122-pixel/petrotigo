@@ -15,10 +15,11 @@ require_once 'security.php';
     <!-- FontAwesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- hCaptcha (siempre muestra desafío de imágenes) -->
-    <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
-    <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+    
+    
 
 
+<script src="https://js.hcaptcha.com/1/api.js" async defer></script>
 </head>
 
 <body>
@@ -197,10 +198,13 @@ require_once 'security.php';
 
         // Estado del captcha
         let captchaResuelto = false;
+        let lastCaptchaToken = null;
 
         // Callback cuando el usuario resuelve el captcha
         function onCaptchaSuccess(token) {
+            console.log("[SECURITY] hCaptcha Resuelto ✅");
             captchaResuelto = true;
+            lastCaptchaToken = token;
             checkFormValid();
         }
 
@@ -256,7 +260,7 @@ require_once 'security.php';
 
                     // --- NUEVO FLUJO ASíNCRONO (POLLING)
                     if (currentCaptchaType === 'hcaptcha') {
-                        recaptchaToken = hcaptcha.getResponse();
+                        recaptchaToken = lastCaptchaToken;
                     }
 
                     if (!data) { // This is the new if block
