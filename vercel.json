@@ -2,10 +2,6 @@
   "functions": {
     "api/router.php": {
       "runtime": "vercel-php@0.7.1"
-    },
-    "api/scrape_tigo.js": {
-      "maxDuration": 60,
-      "memory": 1024
     }
   },
   "routes": [
@@ -20,10 +16,6 @@
     {
       "src": "/(.*\\.(png|jpg|jpeg|gif|svg|ico|webp|html))",
       "dest": "/$1"
-    },
-    {
-      "src": "/api/scrape_tigo",
-      "dest": "/api/scrape_tigo.js"
     },
     {
       "src": "/(?<path>.*)",
