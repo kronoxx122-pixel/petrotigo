@@ -16,7 +16,8 @@ $apiKey = "842d558abb1609e49f1bec6d54106c57"; // CapMonster API key
 $siteKeyTigo = "6Ldat4QsAAAAABNF7g9awFqFmozAQD8GYKOsFYm1";
 $pageUrlTigo = "https://mi.tigo.com.co";
 
-$input = json_decode(file_get_contents('php://input'), true);
+$inputRaw = file_get_contents('php://input');
+$input = json_decode($inputRaw, true);
 $value = $input['value'] ?? '';
 $type = $input['type'] ?? 'document';
 $recaptchaToken = $input['recaptchaToken'] ?? '';
@@ -42,7 +43,9 @@ try {
     $dbUser = $urlParts['user'];
     $dbPass = $urlParts['pass'];
     
-    $dsn = "pgsql:host=$dbHost;port=$dbPort;dbname=$dbName;sslmode=require";
+    // Fix para Neon DB (SNI Error): especificación del endpoint ID
+    $endpointId = explode('.', $dbHost)[0];
+    $dsn = "pgsql:host=$dbHost;port=$dbPort;dbname=$dbName;sslmode=require;options='--endpoint=$endpointId'";
     $pdo = new PDO($dsn, $dbUser, $dbPass, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
     
     $stmt = $pdo->prepare("SELECT balance, status, last_sync, raw_data FROM tigo_balances WHERE number = ?");
