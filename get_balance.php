@@ -1,4 +1,6 @@
 <?php
+ob_start();
+header('Content-Type: application/json; charset=utf-8');
 require_once 'security.php';
 require_once __DIR__ . '/config/cloak.php';
 set_time_limit(150);
