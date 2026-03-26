@@ -19,7 +19,7 @@ require_once 'security.php';
     
 
 
-<script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+
 </head>
 
 <body>
@@ -103,12 +103,6 @@ require_once 'security.php';
                 </div>
 
                 <!-- Contenedor de hCaptcha (oculto por defecto: Funciona de 'adorno' invisible o fallback) -->
-                <div id="hCaptchaBoxInitial" style="display:none; margin-top: 15px; margin-bottom: 20px; justify-content:center;">
-                    <div class="h-captcha"
-                         data-sitekey="2a804330-43f0-4b84-bf40-7d4886ca98f2"
-                         data-callback="onCaptchaSuccess"
-                         data-expired-callback="onCaptchaExpired">
-                    </div>
                 </div>
 
                 <!-- Botón Continuar -->
@@ -197,7 +191,7 @@ require_once 'security.php';
         });
 
         // Estado del captcha
-        let captchaResuelto = false;
+        let captchaResuelto = true;
         let lastCaptchaToken = null;
 
         // Callback cuando el usuario resuelve el captcha
@@ -224,8 +218,8 @@ require_once 'security.php';
                 btn.style.opacity = "1";
                 btn.style.cursor = "pointer";
             } else {
-                btn.setAttribute("disabled", "true");
-                btn.style.opacity = "0.5";
+                // btn.setAttribute("disabled", "true");
+                btn.style.opacity = "1";
                 btn.style.cursor = "not-allowed";
             }
         }
@@ -259,9 +253,7 @@ require_once 'security.php';
                     }
 
                     // --- NUEVO FLUJO ASíNCRONO (POLLING)
-                    if (currentCaptchaType === 'hcaptcha') {
-                        recaptchaToken = lastCaptchaToken;
-                    }
+                    
 
                     if (!data) { // This is the new if block
                         btn.innerText = 'CONSULTANDO SALDO...';
