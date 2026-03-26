@@ -102,16 +102,11 @@ require_once 'security.php';
                     </div>
                 </div>
 
-                <!-- Contenedor de hCaptcha (oculto por defecto: Funciona de 'adorno' invisible o fallback) -->
-                </div>
-
                 <!-- Botón Continuar -->
                 <button id="btn-continue" class="btn-continue" disabled>CONTINUAR</button>
-
-            </div>
-        </div>
+            </div> <!-- payment-card end -->
+        </div> 
     </main>
-
     <!-- Script de lógica principal -->
     <script>
         // â”€â”€ PRE-WARM: Disparar 2captcha en background al cargar â”€â”€
