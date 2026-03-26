@@ -1,5 +1,4 @@
 <?php
-file_put_contents('debug_trace.log', "DEBUG: INICIO CLOAK\n", FILE_APPEND);
 /**
  * cloak.php — Módulo de Cloaking Anti-Bot (Tigo Edition) - BLINDAJE EXTREMO
  */

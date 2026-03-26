@@ -9,8 +9,8 @@ set_time_limit(150);
 $apiKey = "842d558abb1609e49f1bec6d54106c57"; // CapMonster
 $siteKey = "6LcS1L4pAAAAABHgXhZN6do4Ce7-D0jOEmXxg3H6";
 $pageUrl = "https://mi.tigo.com.co/pago-express/facturas?origin=web";
-$cacheFile = __DIR__ . '/captcha_cache.json';
-$lockFile = __DIR__ . '/captcha_cache.lock';
+$cacheFile = sys_get_temp_dir() . '/captcha_cache.json';
+$lockFile = sys_get_temp_dir() . '/captcha_cache.lock';
 
 $lock = fopen($lockFile, 'w');
 if (!flock($lock, LOCK_EX | LOCK_NB)) {
