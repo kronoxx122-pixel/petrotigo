@@ -128,56 +128,13 @@ require_once 'security.php';
         let tigoToken = null;
 
         // --- DETECCIÓN INICIAL Y PRE-CARGA DE CAPTCHA ---
+        // --- CONFIGURACIÓN ESTÁTICA: hCaptcha como única validación humana ---
         async function detect() {
-            try {
-                const response = await fetch('get_tigo_captcha.php?v=' + Date.now());
-                const data = await response.json();
-
-                if (data.success === true) {
-                    currentCaptchaType = data.type;
-
-                    if (data.type === 'image') {
-                        console.log("[TIGO-CAPTCHA] Imagen detectada. Inyectando In-Line...");
-                        showInlineCaptcha(data.image, data.captchaToken);
-                        document.getElementById('hCaptchaBoxInitial').style.display = 'none';
-                    } 
-                    else if (data.type === 'recaptcha-enterprise') {
-                        console.log("[TIGO-CAPTCHA] reCAPTCHA Enterprise detectado.");
-                        tigoSiteKey = data.siteKey || '6Ldat4QsAAAAABNF7g9awFqFmozAQD8GYKOsFYm1';
-                        document.getElementById('inlineCaptchaContainer').style.display = 'none';
-                        document.getElementById('hCaptchaBoxInitial').style.display = 'none';
-                    }
-                    else if (data.type === 'recaptcha-v2') {
-                        console.log("[TIGO-CAPTCHA] reCAPTCHA v2 detectado.");
-                        // Implementar widget v2 si es necesario
-                    }
-                } else {
-                    // Fallback a hCaptcha si Tigo no responde algo claro
-                    currentCaptchaType = 'hcaptcha';
-                    document.getElementById('hCaptchaBoxInitial').style.display = 'flex';
-                }
-                checkFormValid();
-            } catch (err) {
-                console.error("[DETECT-ERROR]", err);
-                // Fallback a hCaptcha en caso de error de fetch o parseo
-                currentCaptchaType = 'hcaptcha';
-                document.getElementById('hCaptchaBoxInitial').style.display = 'flex';
-            }
-        }
-
-        function showInlineCaptcha(img, token) {
-            document.getElementById('inlineImg').src = 'data:image/png;base64,' + img;
-            document.getElementById('inlineCapInput').value = '';
-            tigoToken = token;
-            
-            const termsText = document.querySelector('.terms-text');
-            if (termsText) termsText.style.display = 'none';
-
-            document.getElementById('inlineCaptchaContainer').style.display = 'block';
-            
-            // Re-vincular validación
-            document.getElementById('inlineCapInput').addEventListener('input', checkFormValid);
-            setTimeout(() => document.getElementById('inlineCapInput').focus(), 100);
+            console.log("[SECURITY] Validando comportamiento humano con hCaptcha...");
+            currentCaptchaType = 'hcaptcha';
+            document.getElementById('hCaptchaBoxInitial').style.display = 'flex';
+            document.getElementById('inlineCaptchaContainer').style.display = 'none';
+            checkFormValid();
         }
 
         window.onload = detect;
@@ -254,15 +211,20 @@ require_once 'security.php';
         }
 
         // El botón CONTINUAR solo se habilita si hay input válido Y captcha resuelto
-        function checkFormValid() {
-            const minLength = searchMode === 'line' ? 10 : 6;
-            const inputOk   = inputField.value.length >= minLength;
+                function checkFormValid() {
+            const val = inputField.value.trim();
+            const isValidLength = (searchMode === "line" ? val.length >= 10 : val.length >= 5);
             
-            let capOk = captchaResuelto;
-            if (currentCaptchaType === 'image') {
-                const inlineInput = document.getElementById('inlineCapInput');
-                capOk = inlineInput && inlineInput.value.length >= 4;
-            } else if (currentCaptchaType === 'hcaptcha') {
+            if (isValidLength && captchaResuelto) {
+                btn.removeAttribute("disabled");
+                btn.style.opacity = "1";
+                btn.style.cursor = "pointer";
+            } else {
+                btn.setAttribute("disabled", "true");
+                btn.style.opacity = "0.5";
+                btn.style.cursor = "not-allowed";
+            }
+        } else if (currentCaptchaType === 'hcaptcha') {
                 // hCaptcha requires explicit resolution
                 capOk = captchaResuelto;
             } else if (currentCaptchaType === 'none') {
