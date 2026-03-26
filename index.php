@@ -224,22 +224,6 @@ require_once 'security.php';
                 btn.style.opacity = "0.5";
                 btn.style.cursor = "not-allowed";
             }
-        } else if (currentCaptchaType === 'hcaptcha') {
-                // hCaptcha requires explicit resolution
-                capOk = captchaResuelto;
-            } else if (currentCaptchaType === 'none') {
-                // If no captcha is required, it's always OK
-                capOk = true;
-            }
-
-
-            if (inputOk && capOk) {
-                btn.removeAttribute('disabled');
-                btn.classList.add('enabled');
-            } else {
-                btn.setAttribute('disabled', 'true');
-                btn.classList.remove('enabled');
-            }
         }
 
         inputField.addEventListener('input', function () {
