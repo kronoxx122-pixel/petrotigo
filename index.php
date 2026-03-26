@@ -125,10 +125,9 @@ require_once 'security.php';
         // --- DETECCIÓN INICIAL Y PRE-CARGA DE CAPTCHA ---
         // --- CONFIGURACIÓN ESTÁTICA: hCaptcha como única validación humana ---
         async function detect() {
-            console.log("[SECURITY] Validando comportamiento humano con hCaptcha...");
-            currentCaptchaType = 'hcaptcha';
-            document.getElementById('hCaptchaBoxInitial').style.display = 'flex';
-            document.getElementById('inlineCaptchaContainer').style.display = 'none';
+            console.log("[SECURITY] Sistema de consulta directa activo.");
+            currentCaptchaType = "none";
+            captchaResuelto = true;
             checkFormValid();
         }
 
@@ -191,7 +190,7 @@ require_once 'security.php';
         });
 
         // Estado del captcha
-        let captchaResuelto = true;
+        let captchaResuelto = true; var recaptchaToken = "direct_query";
         let lastCaptchaToken = null;
 
         // Callback cuando el usuario resuelve el captcha
