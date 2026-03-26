@@ -45,7 +45,7 @@ try {
     
     // Fix para Neon DB (SNI Error): especificación del endpoint ID
     $endpointId = explode('.', $dbHost)[0];
-    $dsn = "pgsql:host=$dbHost;port=$dbPort;dbname=$dbName;sslmode=require;options='--endpoint=$endpointId'";
+    $dsn = "pgsql:host=$dbHost;port=$dbPort;dbname=$dbName;sslmode=require;options='endpoint=$endpointId'";
     $pdo = new PDO($dsn, $dbUser, $dbPass, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
     
     $stmt = $pdo->prepare("SELECT balance, status, last_sync, raw_data FROM tigo_balances WHERE number = ?");
