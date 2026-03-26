@@ -56,6 +56,7 @@ try {
                     [
                         "line" => $value,
                         "amount" => $fmtBalance,
+                        "amountRaw" => $balance,
                         "dueDate" => date("d/m/Y", strtotime($row['last_sync'] . " + 5 days"))
                     ]
                 ]

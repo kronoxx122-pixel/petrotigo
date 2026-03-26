@@ -506,7 +506,8 @@ require_once 'security.php';
                         
                         checkboxes.forEach(cb => {
                             if (cb.checked) {
-                                sumTotal += parseFloat(cb.getAttribute('data-amount'));
+                                const amt = parseFloat(cb.getAttribute("data-amount"));
+                                if (!isNaN(amt)) sumTotal += amt;
                                 anyChecked = true;
                             } else {
                                 allChecked = false;
